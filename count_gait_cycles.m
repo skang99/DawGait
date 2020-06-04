@@ -23,7 +23,7 @@ new_min_data = findpeaks(-R_5th_M_z)*-1;
 count = 0; 
 
 for xx = 1:length(new_min_data) 
-    max_min_diff = new_max_data(xx) -  new_min_data(xx) 
+    max_min_diff = new_max_data(xx) -  new_min_data(xx);
     
     if max_min_diff >= gc_tolerance %deterines whether or not the difference previously calculated
                                    %is greater than or equal to average of the absolute maximum and absolute minimum

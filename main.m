@@ -20,7 +20,8 @@ R_5th_M_z = R5M(:,3);
 
 landmark_coord = R_5th_M_z;
 
-[cyc_start,cyc_end] = find_start_cycle_frame(R_5th_M_z);
+[cyc_start,cyc_end] = find_start_cycle_frame(R_5th_M_z)
+
 
 R_5th_M_z = R_5th_M_z(cyc_start:cyc_end);
 trimmed_coord = R_5th_M_z;
@@ -52,6 +53,7 @@ RAC = RAC(cyc_start:cyc_end,:);
 
 [gait_cycle_frame_locations, gait_cycle_count] = find_gait_cycle_frames(R_5th_M_z)
 
+
 gait_cycle_count = gait_cycle_count + 1;
 
 if(gait_cycle_frame_locations == -1) 
@@ -77,6 +79,7 @@ end
 for n = 1:gait_cycle_count - 1
     start_frame = gait_cycle_frame_locations(n)
     end_frame = gait_cycle_frame_locations(n+1)
+    
 
     segment_error_checks = struct("RGT_RLE","RLO_RLS","RDS_Centroid","T1_Centroid");
     segment_error_checks.RGT_RLE = error_check(RGT,RLE,frame_errors,50,static_RGT_RLE,start_frame,end_frame);

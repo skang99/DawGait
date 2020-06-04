@@ -13,15 +13,11 @@ abs_min = min(R_5th_M_z); %finds the absolute minimum position of the new Z_paw 
 
 max_min_tol = (abs_min + abs_max)/2; %sets a tolerance to help find the beginning of each gait cycle
 
-disp("find gc frames process")
-
-new_max_data = findpeaks(R_5th_M_z) %finds all local maxima in the new Z-paw array
+new_max_data = findpeaks(R_5th_M_z); %finds all local maxima in the new Z-paw array
                                      %and stores it in a seperate array
 
-new_min_data = findpeaks(-R_5th_M_z)*-1 %finds all local minima in the Z-paw array
+new_min_data = findpeaks(-R_5th_M_z)*-1; %finds all local minima in the Z-paw array
                                          %and stores it in a seperate array
-                                         
-new_min_data = new_min_data(new_min_data ~= 0)
                                                                                                                     
 count = 0; 
 
@@ -46,7 +42,7 @@ gait_cycle_count = count;
         gait_cycle_loc = -1;
 
     else
-          
+
         gait_cycle_loc(1) = 1;
 
         for i = 1:length(new_min_pos)

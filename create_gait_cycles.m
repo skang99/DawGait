@@ -22,7 +22,7 @@ time = position_data(:,1);
 
 
 
-time = time / 100;
+time = time / 200;
 
 RGT = double(subs(extract_data(position_data,markers,'GRTB'),NaN,0));
 RLE = double(subs(extract_data(position_data,markers,'LEPI'),NaN,0));

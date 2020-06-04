@@ -75,7 +75,6 @@ function [gc_is_good] = error_check(M1,M2,frame_errors,error_percent,static_seg,
             k_good = 0;      
             break;
         end
-        disp(newline)
         
      end %for
     
