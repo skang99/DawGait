@@ -462,17 +462,23 @@ for i = 1:gait_cycle_count
     start_frame = trial.gait_cycles(i).start_frame;
     end_frame = trial.gait_cycles(i).end_frame;
     
+    %Elbow RGT_RLE & RLO_RLS
     tBA_f = BA_f(start_frame:end_frame);
     tBA_r = BA_r(start_frame:end_frame);
     tBA_a = BA_a(start_frame:end_frame);
     
+    %Carpus RLO_RLS & ACB_MP5
     tAP_f = AP_f(start_frame:end_frame);
     tAP_r = AP_r(start_frame:end_frame);
     tAP_a = AP_a(start_frame:end_frame);
     
+    
+    %Shoulder Rds_cen % T1_cent & RGT_RLE
     tBS_f = BS_f(start_frame:end_frame);
     tBS_r = BS_r(start_frame:end_frame);
     tBS_a = BS_a(start_frame:end_frame);
+    
+    %postcondition: all data included, excluding bad(seg check failure)/missing data
     
    
     frames(i) = end_frame - start_frame;

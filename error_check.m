@@ -71,7 +71,7 @@ function [gc_is_good] = error_check(M1,M2,frame_errors,error_percent,static_seg,
         end
         
         if(k >= frame_errors)
-            disp(frame_errors + " consecutive errors found. Segment marked as bad.");
+        
             k_good = 0;      
             break;
         end
@@ -83,12 +83,6 @@ function [gc_is_good] = error_check(M1,M2,frame_errors,error_percent,static_seg,
    elseif(~k_good)
        gc_is_good = 0;
    end
-   
-  
-    disp("Error count " + error_count)  
-    disp(newline)
-   
-    
    
 end %error_check
 

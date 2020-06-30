@@ -20,7 +20,7 @@ R_5th_M_z = R5M(:,3);
 
 landmark_coord = R_5th_M_z;
 
-[cyc_start,cyc_end] = find_start_cycle_frame(R_5th_M_z)
+[cyc_start,cyc_end] = find_start_cycle_frame(R_5th_M_z);
 
 
 R_5th_M_z = R_5th_M_z(cyc_start:cyc_end);
@@ -30,11 +30,11 @@ new_new_time = time(1:length(R_5th_M_z));
 
 %Plots the position of the right 5th metacarpal in one or more complete
 %gait cycles
-% figure(2)
-% plot(new_new_time,R_5th_M_z)
-% xlabel('time')
-% ylabel('distance(m)')
-% title('Gait Cycles')
+figure(2)
+plot(new_new_time,R_5th_M_z)
+xlabel('time')
+ylabel('distance(m)')
+title('Gait Cycles')
 
 R5M = R5M(cyc_start:cyc_end,:);
 RGT = RGT(cyc_start:cyc_end,:);
@@ -67,6 +67,7 @@ try
     [static_RGT_RLE,static_RLO_RLS,static_RDS_Centroid,static_T1_Centroid] = create_static_data(static_trial,new_new_time,time);
 catch exception  
     disp(getReport(exception))
+    
 end
                    
 % %Plots the position of the right 5th metacarpal during the static trial
@@ -75,6 +76,7 @@ end
 % xlabel('time(sec)') %label the x-axis
 % ylabel('position(m)') %labels the y-axis
 % title('Static Z Coordinates of Paw in Time') 
+
 
 for n = 1:gait_cycle_count - 1
     start_frame = gait_cycle_frame_locations(n)
@@ -96,44 +98,44 @@ rgt_rle = lengthPlotter(static_RGT_RLE,RGT,RLE);
 
 new_new_time = 1:length(rgt_rle);
 
-figure(1)
-plot(new_new_time,rgt_rle)
-hold on;
-yline(static_RGT_RLE);
-hold off;
-xlabel('frames')
-ylabel('length(mm)')
-title('Length of RGT/RLE Static and Dynamic Segments vs Time')
-
-rlo_rls = lengthPlotter(static_RLO_RLS,RLO,RLS);
-figure(2)
-plot(new_new_time,rlo_rls)
-hold on;
-yline(static_RLO_RLS);
-hold off;
-xlabel('frames')
-ylabel('length(mm)')
-title('Length of RLO/RLS Static and Dynamic Segments vs Time')
-
-rds_cent = lengthPlotter(static_RDS_Centroid,RDS,Centroid);
-figure(3)
-plot(new_new_time,rds_cent)
-hold on;
-yline(static_RDS_Centroid);
-hold off;
-xlabel('frames')
-ylabel('length(mm)')
-title('Length of RDS/Cent Static and Dynamic Segments vs Time')
-
-t1_cent = lengthPlotter(static_T1_Centroid,T1,Centroid);
-figure(4)
-plot(new_new_time,t1_cent)
-hold on;
-yline(static_T1_Centroid);
-hold off;
-xlabel('frames')
-ylabel('length(mm)')
-title('Length of T1/Cent Static and Dynamic Segments vs Time')
+% figure(1)
+% plot(new_new_time,rgt_rle)
+% hold on;
+% yline(static_RGT_RLE);
+% hold off;
+% xlabel('frames')
+% ylabel('length(mm)')
+% title('Length of RGT/RLE Static and Dynamic Segments vs Time')
+% 
+% rlo_rls = lengthPlotter(static_RLO_RLS,RLO,RLS);
+% figure(2)
+% plot(new_new_time,rlo_rls)
+% hold on;
+% yline(static_RLO_RLS);
+% hold off;
+% xlabel('frames')
+% ylabel('length(mm)')
+% title('Length of RLO/RLS Static and Dynamic Segments vs Time')
+% 
+% rds_cent = lengthPlotter(static_RDS_Centroid,RDS,Centroid);
+% figure(3)
+% plot(new_new_time,rds_cent)
+% hold on;
+% yline(static_RDS_Centroid);
+% hold off;
+% xlabel('frames')
+% ylabel('length(mm)')
+% title('Length of RDS/Cent Static and Dynamic Segments vs Time')
+% 
+% t1_cent = lengthPlotter(static_T1_Centroid,T1,Centroid);
+% figure(4)
+% plot(new_new_time,t1_cent)
+% hold on;
+% yline(static_T1_Centroid);
+% hold off;
+% xlabel('frames')
+% ylabel('length(mm)')
+% title('Length of T1/Cent Static and Dynamic Segments vs Time')
 
 for i = 1:gait_cycle_count - 1
     disp(gait_cycles(i).seg_checks)
