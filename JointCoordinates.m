@@ -1,10 +1,8 @@
-function [BA_f,BA_r,BA_a,AP_f,AP_r,AP_a,BS_f,BS_r,BS_a,new_time, R_5th_M_z,frames] = JointCoordinates(dynamic_trial,static_trial,fix)
+function [BA_f,BA_r,BA_a,AP_f,AP_r,AP_a,BS_f,BS_r,BS_a,new_time, R_5th_M_z,frames,no_good_cycles] = JointCoordinates(dynamic_trial,static_trial)
 
-[sR5M,sRGT,sRLE,sRLO,sRLS,sT1,sRDS,sCentroid,time,sRME,sRMS,sRTR,sRCR,sR2M,sACB,sRAC] = JCSextract(static_trial,fix);
+[sR5M,sRGT,sRLE,sRLO,sRLS,sT1,sRDS,sCentroid,time,sRME,sRMS,sRTR,sRCR,sR2M,sACB,sRAC] = JCSextract(static_trial);
 
 load([dynamic_trial '.mat']);
-
-sR5M
 
 [static_5th_M_x static_5th_M_y static_5th_M_z] = extract_XYZ(sR5M);
 [static_RLE_x static_RLE_y static_RLE_z] = extract_XYZ(sRLE);
@@ -19,6 +17,16 @@ sR5M
 [static_RDS_x static_RDS_y static_RDS_z] = extract_XYZ(sRDS);
 
 gait_cycle_count = length(trial.gait_cycles);
+
+no_good_cycles = 0;
+
+%Temp cut until segment checking specification is settled
+% for i = 1:gait_cycle_count
+%     if(trial.gait_cycles(i).is_good)
+%         no_good_cycles = 0;
+%         break;
+%     end
+% end
 
 [R_5th_M_x R_5th_M_y R_5th_M_z] = extract_XYZ(trial.pos_data.R5M);
 [RLE_x RLE_y RLE_z] = extract_XYZ(trial.pos_data.RLE);
@@ -452,31 +460,62 @@ title('T1_z velocity during gc#1')
 
 gait_cycle_count
 
+
+% %Show anyway? 
+% if(no_good_cycles)
+%     BA_f =0;BA_r=0;BA_a=0;AP_f=0;AP_r=0;AP_a=0;BS_f=0;BS_r=0;BS_a=0;new_time=0; R_5th_M_z=0;frames=0;
+%     no_good_cycles = 1;
+%     return;
+% end
+
+%If at least 1 good and bad cycle, this will not work correctly
 for i = 1:gait_cycle_count
     
-    if(~trial.gait_cycles(i).is_good)
-        continue;
-    end
+%     if(~trial.gait_cycles(i).is_good)
+%         continue;
+%     end
     
     
     start_frame = trial.gait_cycles(i).start_frame;
     end_frame = trial.gait_cycles(i).end_frame;
     
-    %Elbow RGT_RLE & RLO_RLS
-    tBA_f = BA_f(start_frame:end_frame);
-    tBA_r = BA_r(start_frame:end_frame);
-    tBA_a = BA_a(start_frame:end_frame);
+    if(trial.gait_cycles(i).RGT_RLE && trial.gait_cycles(i).RLO_RLS)
+        %Elbow RGT_RLE & RLO_RLS
+        disp("Creating elbow data for gc # " + i)
+        tBA_f = BA_f(start_frame:end_frame);
+        tBA_r = BA_r(start_frame:end_frame);
+        tBA_a = BA_a(start_frame:end_frame);
+    else
+        tBA_f = 0;
+        tBA_r = 0;
+        tBA_a = 0;
+    end
     
     %Carpus RLO_RLS & ACB_MP5
-    tAP_f = AP_f(start_frame:end_frame);
-    tAP_r = AP_r(start_frame:end_frame);
-    tAP_a = AP_a(start_frame:end_frame);
+    if(trial.gait_cycles(i).ACB_R5M && trial.gait_cycles(i).RLO_RLS)
+        disp("Creating carpus data for gc # " + i)
+        tAP_f = AP_f(start_frame:end_frame);
+        tAP_r = AP_r(start_frame:end_frame);
+        tAP_a = AP_a(start_frame:end_frame);
+    else
+        tAP_f = 0;
+        tAP_r = 0;
+        tAP_a = 0;
+    end 
     
     
-    %Shoulder Rds_cen % T1_cent & RGT_RLE
-    tBS_f = BS_f(start_frame:end_frame);
-    tBS_r = BS_r(start_frame:end_frame);
-    tBS_a = BS_a(start_frame:end_frame);
+    %shoulder
+    if(trial.gait_cycles(i).RGT_RLE && trial.gait_cycles(i).RDS_Centroid && trial.gait_cycles(i).T1_Centroid)
+        disp("Creating shoulder data for gc # " + i)
+        tBS_f = BS_f(start_frame:end_frame); 
+        tBS_r = BS_r(start_frame:end_frame);
+        tBS_a = BS_a(start_frame:end_frame);
+    else
+        tBS_f = 0; 
+        tBS_r = 0;
+        tBS_a = 0;
+    end
+    
     
     %postcondition: all data included, excluding bad(seg check failure)/missing data
     
@@ -492,16 +531,16 @@ temp_name = char(trial.trial_name + " Angles");
 
 save([temp_name '.mat'],'jc_angles')
 
-R_5th_M_z = R_5th_M_z * 1000;
+R_5th_M_z = R_5th_M_z;
 
 
 %Handles exporting the angle data to spreadsheets
 
-t = struct2table(jc_angles.angles,'AsArray',true);
-y = table2array(t);
-y_1 = y;
-
-writecell(y_1,'chester_angles.xlsx');
+% t = struct2table(jc_angles.angles,'AsArray',true);
+% y = table2array(t);
+% y_1 = y;
+% 
+% writecell(y_1,'chester_angles.xlsx');
 
 % ba_table = [];
 % 

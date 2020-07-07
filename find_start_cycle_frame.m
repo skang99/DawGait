@@ -9,12 +9,12 @@ function [cyc_start,cyc_end] = find_start_cycle_frame(marker_pos)
 
 max_pos = max(marker_pos);
 min_pos = min(marker_pos);
-avg_pos = (max_pos + min_pos)/2
-min_data = findpeaks(-marker_pos)*-1
-max_data = findpeaks(marker_pos)
+avg_pos = (max_pos + min_pos)/2;
+min_data = findpeaks(-marker_pos)*-1;
+max_data = findpeaks(marker_pos);
 
-min_data = min_data(min_data < (avg_pos - avg_pos * 0.15) & min_data ~= 0)
-max_data = max_data(max_data > avg_pos)
+min_data = min_data(min_data < (avg_pos - avg_pos * 0.15) & min_data ~= 0);
+max_data = max_data(max_data > avg_pos);
 
 first_min_pos = min_data(1);
 

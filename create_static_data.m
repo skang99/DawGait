@@ -1,4 +1,4 @@
-function [static_RGT_RLE,static_RLO_RLS,static_RDS_Centroid,static_T1_Centroid] = create_static_data(static_trial,new_new_time,time)
+function [static_RGT_RLE,static_RLO_RLS,static_RDS_Centroid,static_T1_Centroid,static_ACB_R5M] = create_static_data(static_trial,new_new_time,time)
 
 try 
 [static_data,static_coords] = xlsread(static_trial); %import excel data numeric and text
@@ -13,6 +13,7 @@ static_pos_data = static_data(6:length(static_data),:); %Extract only the numeri
 RGT = double(subs(extract_data(static_pos_data,static_coords,'GRTB'),NaN,0));
 RLE = double(subs(extract_data(static_pos_data,static_coords,'LEPI'),NaN,0));
 R5M = double(subs(extract_data(static_pos_data,static_coords,'MCP5'),NaN,0));
+ACB = double(subs(extract_data(static_pos_data,static_coords,'ACCB'),NaN,0));
 RLO = double(subs(extract_data(static_pos_data,static_coords,'OLEC'),NaN,0));
 RLS = double(subs(extract_data(static_pos_data,static_coords,'LSTY'),NaN,0));
 T1 = double(subs(extract_data(static_pos_data,static_coords,'T1'),NaN,0));
@@ -66,6 +67,7 @@ RLS = RLS(lower_lim: upper_lim,:);
 T1 = T1(lower_lim: upper_lim,:);
 RDS = RDS(lower_lim: upper_lim,:);
 Centroid = Centroid(lower_lim: upper_lim,:);
+ACB = ACB(lower_lim:upper_lim,:);
 % RME = RME(lower_lim: upper_lim,:);
 % RTR = RTR(lower_lim: upper_lim,:);
 
@@ -94,6 +96,11 @@ hb_x = T1(:,1) - Centroid(:,1);
 hb_z = T1(:,3) - Centroid(:,3); 
 hb = sqrt(hb_x.^2 + hb_z.^2);
 static_T1_Centroid = mean(hb);
+
+am_x = ACB(:,1) - R5M(:,1);
+am_z = ACB(:,3) - R5M(:,3);
+am = sqrt(am_x.^2 + am_z.^2);
+static_ACB_R5M = mean(am);
 
                                                                                 
 end

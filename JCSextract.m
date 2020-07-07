@@ -1,6 +1,6 @@
 %temp fix
 
-function [R5M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,R2M,ACB,RAC] = create_gait_cycles(filename,fix)
+function [R5M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,R2M,ACB,RAC] = create_gait_cycles(filename)
 %This function takes an xls file and creates graphical
 %representations of the data input. 
 %filename: name of the xlsx file to read data from
@@ -25,26 +25,7 @@ time = position_data(:,1);
 
 time = time / 100;
 
-if(fix) 
-    RGT = double(subs(extract_data(position_data,markers,'RightForelimbTrunkPelvis:GRTB'),NaN,0));
-    RLE = double(subs(extract_data(position_data,markers,'RightForelimbTrunkPelvis:LEPI'),NaN,0));
-    R5M = double(subs(extract_data(position_data,markers,'RightForelimbTrunkPelvis:MCP5'),NaN,0));
-    RLO = double(subs(extract_data(position_data,markers,'RightForelimbTrunkPelvis:OLEC'),NaN,0));
-    RLS = double(subs(extract_data(position_data,markers,'RightForelimbTrunkPelvis:LSTY'),NaN,0));
-    T1 = double(subs(extract_data(position_data,markers,'RightForelimbTrunkPelvis:T1'),NaN,0));
-    RDS = double(subs(extract_data(position_data,markers,'RightForelimbTrunkPelvis:DRSC'),NaN,0));
-    RME = double(subs(extract_data(position_data,markers,'RightForelimbTrunkPelvis:MEPI'),NaN,0));
-    RTR = double(subs(extract_data(position_data,markers,'RightForelimbTrunkPelvis:TRIC'),NaN,0));
-    RCR = double(subs(extract_data(position_data,markers,'RightForelimbTrunkPelvis:MDCR'),NaN,0));
-    ACB = double(subs(extract_data(position_data,markers,'RightForelimbTrunkPelvis:ACCB'),NaN,0));
-    
-    RAC = double(subs(extract_data(position_data,markers,'RightForelimbTrunkPelvis:ACRM'),NaN,0));
-    RSC1 = double(subs(extract_data(position_data,markers,'RightForelimbTrunkPelvis:SC1'),NaN,0));
-    RSC2 = double(subs(extract_data(position_data,markers,'RightForelimbTrunkPelvis:SC2'),NaN,0));
 
-    RMS = double(subs(extract_data(position_data,markers,'RightForelimbTrunkPelvis:MSTY'),NaN,0));
-    R2M = double(subs(extract_data(position_data,markers,'RightForelimbTrunkPelvis:MCP2'),NaN,0));
-else
     RGT = double(subs(extract_data(position_data,markers,'GRTB'),NaN,0));
     RLE = double(subs(extract_data(position_data,markers,'LEPI'),NaN,0));
     R5M = double(subs(extract_data(position_data,markers,'MCP5'),NaN,0));
@@ -61,10 +42,10 @@ else
     RSC1 = double(subs(extract_data(position_data,markers,'SC1'),NaN,0));
     RSC2 = double(subs(extract_data(position_data,markers,'SC2'),NaN,0));
 
-    RMS = double(subs(extract_data(position_data,markers,'MSTY'),NaN,0))
+    RMS = double(subs(extract_data(position_data,markers,'MSTY'),NaN,0));
     R2M = double(subs(extract_data(position_data,markers,'MCP2'),NaN,0));
 
-end
+
 
 
 Centroid = (RAC + RSC1 + RSC2) * (1/3);

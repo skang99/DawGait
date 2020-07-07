@@ -1,4 +1,6 @@
-function [gc_is_good] = error_check(M1,M2,frame_errors,error_percent,static_seg,start_frame,end_frame)
+function [gc_is_good] = error_check(M1,M2,error_length,static_seg,start_frame,end_frame,t)
+    
+
     
     M1 = M1(start_frame:end_frame,:);
     M2 = M2(start_frame:end_frame,:);
@@ -6,13 +8,12 @@ function [gc_is_good] = error_check(M1,M2,frame_errors,error_percent,static_seg,
     [M1_x, M1_y, M1_z] = extract_XYZ(M1);
     [M2_x, M2_y, M2_z] = extract_XYZ(M2);
 
-    if(isnan(frame_errors))
-        frame_errors = 15;
-    end
+    frame_errors = 15;
+
     
-%     if(isnan(error_percent))
-%         error_percent = 0.03;
-%     end
+     if(isnan(error_length))
+         error_length = 50;
+     end
     
         
     error_count = 0;
@@ -33,14 +34,10 @@ function [gc_is_good] = error_check(M1,M2,frame_errors,error_percent,static_seg,
     %the motion of the dog's skeleton.
     %}
    
-       x = M1_x(1) - M2_x(1); 
-       z = M1_z(1) - M2_z(1);
-       y = sqrt(x^2 + z^2);
+ 
+    k = 0; %current error count
        
-       k = 0; %current error count
-       
-       kk = 0;
-       k_good = 1;
+    k_good = 1;
        
     for kk = 1:length(M1_x)
 
@@ -48,10 +45,10 @@ function [gc_is_good] = error_check(M1,M2,frame_errors,error_percent,static_seg,
         AB_z = M1_z(kk) - M2_z(kk);
         AB = sqrt(AB_x^2 + AB_z^2);
         
-        low_accept = static_seg - error_percent;
-        hi_accept = static_seg + error_percent;
+        low_accept = static_seg - error_length;
+        hi_accept = static_seg + error_length;
         
-%        if(mod(kk,2) == 0) 
+%         if(t) %temp debug
 %             disp("Current frame # " + kk);
 %             disp("Dynamic: " + AB);
 %             disp("Static: " + static_seg);
@@ -59,16 +56,18 @@ function [gc_is_good] = error_check(M1,M2,frame_errors,error_percent,static_seg,
 %             disp("Upper bound: " + hi_accept);
 %             disp("current count: "  + k);
 %             disp("Actual difference between stat and dyn segments " + abs(AB - static_seg))
-%        end
+%             disp("---")
+%         end
        
-              
+         
         if((AB <= low_accept) || (AB >= hi_accept))
             k = k + 1;
-%             disp("Frame marked as error");
+            %disp("Frame marked as error");
             error_count = error_count + 1;   
         else
             k = 0;
         end
+       
         
         if(k >= frame_errors)
         
