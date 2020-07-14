@@ -79,7 +79,6 @@ end
 
 oc = 1;
 
-
 for n = 1:gait_cycle_count - 1
    
     start_frame = gait_cycle_frame_locations(n);
@@ -140,7 +139,7 @@ ylabel('length(mm)')
 title('Length of RGT/RLE Static and Dynamic Segments vs Time')
 
 rlo_rls = lengthPlotter(static_RLO_RLS,RLO,RLS);
-figure(2)
+figure(3)
 plot(new_new_time,rlo_rls)
 hold on;
 yline(static_RLO_RLS);
@@ -150,7 +149,7 @@ ylabel('length(mm)')
 title('Length of RLO/RLS Static and Dynamic Segments vs Time')
 
 rds_cent = lengthPlotter(static_RDS_Centroid,RDS,Centroid);
-figure(3)
+figure(4)
 plot(new_new_time,rds_cent)
 hold on;
 yline(static_RDS_Centroid);
@@ -160,7 +159,7 @@ ylabel('length(mm)')
 title('Length of RDS/Cent Static and Dynamic Segments vs Time')
 
 t1_cent = lengthPlotter(static_T1_Centroid,T1,Centroid);
-figure(4)
+figure(5)
 plot(new_new_time,t1_cent)
 hold on;
 yline(static_T1_Centroid);
@@ -170,7 +169,7 @@ ylabel('length(mm)')
 title('Length of T1/Cent Static and Dynamic Segments vs Time')
 
 acb_r5m = lengthPlotter(static_ACB_R5M,ACB,R5M);
-figure(5)
+figure(6)
 plot(new_new_time,acb_r5m)
 hold on;
 yline(static_ACB_R5M);
