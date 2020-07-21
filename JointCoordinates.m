@@ -1,4 +1,4 @@
-function [BA_f,BA_r,BA_a,AP_f,AP_r,AP_a,BS_f,BS_r,BS_a,new_time, R_5th_M_z,frames,no_good_cycles] = JointCoordinates(dynamic_trial,static_trial)
+function [BA_f,BA_r,BA_a,AP_f,AP_r,AP_a,BS_f,BS_r,BS_a,new_time, R_5th_M_z,frames,no_good_cycles,gait_cycle_count] = JointCoordinates(dynamic_trial,static_trial)
 
 [sR5M,sRGT,sRLE,sRLO,sRLS,sT1,sRDS,sCentroid,time,sRME,sRMS,sRTR,sRCR,sR2M,sACB,sRAC] = JCSextract(static_trial);
 
@@ -174,7 +174,7 @@ for j = 1:size(RME_x,2)
     
 end
 
-new_time = time(1:length(RGT_x));
+new_time = time(1:length(RGT_x)) / 2;
 
 % figure(1)
 % plot(new_time,RME_z(:,1),'r')
@@ -478,8 +478,6 @@ nBS_f = [];
 nBS_r = [];
 nBS_a = [];
 
-
-%If at least 1 good and bad cycle, this will not work correctly
 for i = 1:gait_cycle_count
     
 %     if(~trial.gait_cycles(i).is_good)
@@ -489,6 +487,7 @@ for i = 1:gait_cycle_count
     
     start_frame = trial.gait_cycles(i).start_frame;
     end_frame = trial.gait_cycles(i).end_frame;
+    gc_length = abs(start_frame - end_frame) + 1;
     
     if(trial.gait_cycles(i).RGT_RLE && trial.gait_cycles(i).RLO_RLS)
         %Elbow RGT_RLE & RLO_RLS
@@ -500,9 +499,9 @@ for i = 1:gait_cycle_count
         nBA_r = [nBA_r; tBA_r];
         nBA_a = [nBA_a; tBA_a];
     else
-        tBA_f = 0;
-        tBA_r = 0;
-        tBA_a = 0;
+        tBA_f = zeros(gc_length,1) + -1;
+        tBA_r = zeros(gc_length,1) + -1;
+        tBA_a = zeros(gc_length,1) + -1;
     end
     
     %Carpus RLO_RLS & ACB_MP5
@@ -515,9 +514,9 @@ for i = 1:gait_cycle_count
         nAP_r = [nAP_r; tAP_r];
         nAP_a = [nAP_a; tAP_a];
     else
-        tAP_f = 0;
-        tAP_r = 0;
-        tAP_a = 0;
+        tAP_f = zeros(gc_length,1) + -1;
+        tAP_r = zeros(gc_length,1) + -1;
+        tAP_a = zeros(gc_length,1) + -1;
     end 
     
     
@@ -531,17 +530,24 @@ for i = 1:gait_cycle_count
         nBS_r = [nBS_r; tBS_r];
         nBS_a = [nBS_a; tBS_a];
     else
-        tBS_f = 0; 
-        tBS_r = 0;
-        tBS_a = 0;
+        tBS_f = zeros(gc_length,1) + -1;
+        tBS_r = zeros(gc_length,1) + -1;
+        tBS_a = zeros(gc_length,1) + -1;
     end
     
     
     %postcondition: all data included, excluding bad(seg check failure)/missing data
-    frames(i) = end_frame - start_frame;
+
     x(i) = struct("ba_f",tBA_f,"ba_r",tBA_r,"ba_a",tBA_a,"ap_f",tAP_f,"ap_r",tAP_r,"ap_a",tAP_a,"bs_f",tBS_f,"bs_r",tBS_r,"bs_a",tBS_a,"start_frame",start_frame,"end_frame",end_frame);
 
 end
+frames = [];
+
+for i = 1:length(trial.gait_cycles)
+    frames(i) = trial.gait_cycles(i).start_frame;
+    frames(i+1) = trial.gait_cycles(i).end_frame;
+end
+
 
 % nBS_f = nBS_f(~isnan(nBS_f));
 % nBS_r = nBS_r(~isnan(nBS_r));
@@ -575,22 +581,26 @@ filename = trial.trial_name + " Angular Data.xlsx";
 writecell(name,filename,'Range','A1')
 writecell(header,filename,'Range','B3')
 
+
 G1 = table(jc_angles.angles(1).ba_f,jc_angles.angles(1).bs_f,jc_angles.angles(1).ap_f,jc_angles.angles(1).ba_r,jc_angles.angles(1).bs_r,jc_angles.angles(1).ap_r,jc_angles.angles(1).ba_a,jc_angles.angles(1).bs_a,jc_angles.angles(1).ap_a);
-G2 = table(jc_angles.angles(2).ba_f,jc_angles.angles(2).bs_f,jc_angles.angles(2).ap_f,jc_angles.angles(2).ba_r,jc_angles.angles(2).bs_r,jc_angles.angles(2).ap_r,jc_angles.angles(2).ba_a,jc_angles.angles(2).bs_a,jc_angles.angles(2).ap_a);
-G3 = table(jc_angles.angles(3).ba_f,jc_angles.angles(3).bs_f,jc_angles.angles(3).ap_f,jc_angles.angles(3).ba_r,jc_angles.angles(3).bs_r,jc_angles.angles(3).ap_r,jc_angles.angles(3).ba_a,jc_angles.angles(3).bs_a,jc_angles.angles(3).ap_a);
+
+if(gait_cycle_count > 1)
+    G2 = table(jc_angles.angles(2).ba_f,jc_angles.angles(2).bs_f,jc_angles.angles(2).ap_f,jc_angles.angles(2).ba_r,jc_angles.angles(2).bs_r,jc_angles.angles(2).ap_r,jc_angles.angles(2).ba_a,jc_angles.angles(2).bs_a,jc_angles.angles(2).ap_a);
+end
+
+if(gait_cycle_count > 2)
+    G3 = table(jc_angles.angles(3).ba_f,jc_angles.angles(3).bs_f,jc_angles.angles(3).ap_f,jc_angles.angles(3).ba_r,jc_angles.angles(3).bs_r,jc_angles.angles(3).ap_r,jc_angles.angles(3).ba_a,jc_angles.angles(3).bs_a,jc_angles.angles(3).ap_a);
+end
 
 writetable(G1,filename,'Sheet',1,'Range','B5','WriteVariableNames',false)
-writetable(G2,filename,'Sheet',1,'Range','K5','WriteVariableNames',false)
-writetable(G3,filename,'Sheet',1,'Range','T5','WriteVariableNames',false)
-        
-    
 
+if(gait_cycle_count > 1)
+    writetable(G2,filename,'Sheet',1,'Range','K5','WriteVariableNames',false)
+end
 
-
-
-
-
-
+if(gait_cycle_count > 2)
+    writetable(G3,filename,'Sheet',1,'Range','T5','WriteVariableNames',false)
+end
 
 end
 

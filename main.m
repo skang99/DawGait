@@ -1,4 +1,4 @@
-function [landmark_coord,trimmed_coord,cycle_time,gait_cycles] = main(dynamic_trial,static_trial,error_length,override_arr)
+function [landmark_coord,trimmed_coord,cycle_time,gait_cycles] = main(dynamic_trial,static_trial,error_length,override_arr,show_graphs)
 
 % try
 %     [R5M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,RME,RTR,RMS,time] = create_gait_cycles(dynamic_trial);
@@ -27,14 +27,6 @@ R_5th_M_z = R_5th_M_z(cyc_start:cyc_end);
 trimmed_coord = R_5th_M_z;
 
 new_new_time = time(1:length(R_5th_M_z));
-
-%Plots the position of the right 5th metacarpal in one or more complete
-%gait cycles
-figure(1)
-plot(new_new_time,R_5th_M_z)
-xlabel('time(s)')
-ylabel('position(mm)')
-title('Gait Cycles')
 
 R5M = R5M(cyc_start:cyc_end,:);
 RGT = RGT(cyc_start:cyc_end,:);
@@ -88,7 +80,7 @@ for n = 1:gait_cycle_count - 1
     if(override_arr(oc))
         segment_error_checks.RGT_RLE = 1;
     else
-        segment_error_checks.RGT_RLE = error_check(RGT,RLE,error_length,static_RGT_RLE,start_frame,end_frame,0);
+        segment_error_checks.RGT_RLE = error_check(RGT,RLE,error_length,static_RGT_RLE,start_frame,end_frame,1);
     end
     
 
@@ -125,58 +117,69 @@ for n = 1:gait_cycle_count - 1
 end
 
 
-rgt_rle = lengthPlotter(static_RGT_RLE,RGT,RLE);
 
-new_new_time = 1:length(rgt_rle);
+if(show_graphs) 
+    rgt_rle = lengthPlotter(static_RGT_RLE,RGT,RLE);
 
-figure(2)
-plot(new_new_time,rgt_rle)
-hold on;
-yline(static_RGT_RLE);
-hold off;
-xlabel('frames')
-ylabel('length(mm)')
-title('Length of RGT/RLE Static and Dynamic Segments vs Time')
+    new_new_time = 1:length(rgt_rle);
 
-rlo_rls = lengthPlotter(static_RLO_RLS,RLO,RLS);
-figure(3)
-plot(new_new_time,rlo_rls)
-hold on;
-yline(static_RLO_RLS);
-hold off;
-xlabel('frames')
-ylabel('length(mm)')
-title('Length of RLO/RLS Static and Dynamic Segments vs Time')
+    %Plots the position of the right 5th metacarpal in one or more complete
+    %gait cycles
+    figure(1)
+    plot(new_new_time,R_5th_M_z)
+    xlabel('time(s)')
+    ylabel('position(mm)')
+    title('Gait Cycles')
 
-rds_cent = lengthPlotter(static_RDS_Centroid,RDS,Centroid);
-figure(4)
-plot(new_new_time,rds_cent)
-hold on;
-yline(static_RDS_Centroid);
-hold off;
-xlabel('frames')
-ylabel('length(mm)')
-title('Length of RDS/Cent Static and Dynamic Segments vs Time')
+    figure(2)
+    plot(new_new_time,rgt_rle)
+    hold on;
+    yline(static_RGT_RLE);
+    hold off;
+    xlabel('frames')
+    ylabel('length(mm)')
+    title('Length of RGT/RLE Static and Dynamic Segments vs Time')
 
-t1_cent = lengthPlotter(static_T1_Centroid,T1,Centroid);
-figure(5)
-plot(new_new_time,t1_cent)
-hold on;
-yline(static_T1_Centroid);
-hold off;
-xlabel('frames')
-ylabel('length(mm)')
-title('Length of T1/Cent Static and Dynamic Segments vs Time')
+    rlo_rls = lengthPlotter(static_RLO_RLS,RLO,RLS);
+    figure(3)
+    plot(new_new_time,rlo_rls)
+    hold on;
+    yline(static_RLO_RLS);
+    hold off;
+    xlabel('frames')
+    ylabel('length(mm)')
+    title('Length of RLO/RLS Static and Dynamic Segments vs Time')
 
-acb_r5m = lengthPlotter(static_ACB_R5M,ACB,R5M);
-figure(6)
-plot(new_new_time,acb_r5m)
-hold on;
-yline(static_ACB_R5M);
-hold off;
-xlabel('frames')
-ylabel('length(mm)')
-title('Length of ACB/R5M Static and Dynamic Segments vs Time')
+    rds_cent = lengthPlotter(static_RDS_Centroid,RDS,Centroid);
+    figure(4)
+    plot(new_new_time,rds_cent)
+    hold on;
+    yline(static_RDS_Centroid);
+    hold off;
+    xlabel('frames')
+    ylabel('length(mm)')
+    title('Length of RDS/Cent Static and Dynamic Segments vs Time')
+
+    t1_cent = lengthPlotter(static_T1_Centroid,T1,Centroid);
+    figure(5)
+    plot(new_new_time,t1_cent)
+    hold on;
+    yline(static_T1_Centroid);
+    hold off;
+    xlabel('frames')
+    ylabel('length(mm)')
+    title('Length of T1/Cent Static and Dynamic Segments vs Time')
+
+    acb_r5m = lengthPlotter(static_ACB_R5M,ACB,R5M);
+    figure(6)
+    plot(new_new_time,acb_r5m)
+    hold on;
+    yline(static_ACB_R5M);
+    hold off;
+    xlabel('frames')
+    ylabel('length(mm)')
+    title('Length of ACB/R5M Static and Dynamic Segments vs Time')
+end
 
 for i = 1:gait_cycle_count - 1
     disp("GC #" + i)

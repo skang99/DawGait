@@ -1,6 +1,6 @@
 %temp fix
 
-function [R5M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,R2M,ACB,RAC] = create_gait_cycles(filename)
+function [R5M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,R2M,ACB,RAC] = JCSextract(filename)
 %This function takes an xls file and creates graphical
 %representations of the data input. 
 %filename: name of the xlsx file to read data from
