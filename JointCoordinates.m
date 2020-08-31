@@ -1,8 +1,12 @@
 function [BA_f,BA_r,BA_a,AP_f,AP_r,AP_a,BS_f,BS_r,BS_a,new_time, R_5th_M_z,frames,no_good_cycles,gait_cycle_count] = JointCoordinates(dynamic_trial,static_trial)
 
+try
 [sR5M,sRGT,sRLE,sRLO,sRLS,sT1,sRDS,sCentroid,time,sRME,sRMS,sRTR,sRCR,sR2M,sACB,sRAC] = JCSextract(static_trial);
+catch exception
+    rethrow(exception)
+end
 
-load([dynamic_trial '.mat']);
+load(['Produced Data/' dynamic_trial '.mat'])
 
 [static_5th_M_x static_5th_M_y static_5th_M_z] = extract_XYZ(sR5M);
 [static_RLE_x static_RLE_y static_RLE_z] = extract_XYZ(sRLE);
@@ -44,7 +48,12 @@ no_good_cycles = 0;
 [ACB_x ACB_y ACB_z] = extract_XYZ(trial.pos_data.ACB);
 
 
-end_frame = length(trial.pos_data.R5M);
+%previously causes a matrix dimension exception: static was shorter than
+%dynamic due to a difference in trimmed vs untrimmed dyn. trial length
+% end_frame = trial.gait_cycles(gait_cycle_count).end_frame;
+
+%allows for static and dynamic matrix dimensions to agree
+end_frame = length(trial.pos_data);
 
 static_RLE_x = static_RLE_x(1:end_frame);
 static_RLE_y = static_RLE_y(1:end_frame);
@@ -70,10 +79,10 @@ static_5th_M_x = static_5th_M_x(1:end_frame);
 static_5th_M_y = static_5th_M_y(1:end_frame);
 static_5th_M_z = static_5th_M_z(1:end_frame);
 
+
 static_R_2_x = static_R_2_x(1:end_frame);
 static_R_2_y = static_R_2_y(1:end_frame);
 static_R_2_z = static_R_2_z(1:end_frame);
-
 
 
 %%
@@ -83,10 +92,10 @@ static_R_2_z = static_R_2_z(1:end_frame);
 RMS_x = [];
 RMS_y = [];
 RMS_z = [];
+
 R2M_x = [];
 R2M_y = [];
 R2M_z = [];
-
 
 for k = 1:size(R_5th_M_x,2)
     
@@ -110,71 +119,71 @@ end
 %The following code uses an unweighted least squares function to
 %approximate the translation vector r and rotation matrix R.
 
-static_RME = [static_ME_x(1) static_ME_y(1) static_ME_z(1)]; %x-y-z coordinates of Medial Epicondyle
-                                                   %at time t1=0 (static)
+% static_RME = [static_ME_x(1) static_ME_y(1) static_ME_z(1)]; %x-y-z coordinates of Medial Epicondyle
+%                                                    %at time t1=0 (static)
+% 
+% RGT_1 = [sRGT(1,1) sRGT(1,2) sRGT(1,3)]; %x-y-z coordinates of Greater Tubercle
+%                                                    %at time t1=0 (static)
+%     
+% RLE_1 = [sRLE(1,1) sRLE(1,2) sRLE(1,3)]; %x-y-z coordinates of Lateral Epicondyle
+%                                                    %at time t1=0 (static)
+%     
+% R_Tricep_1 = [sRTR(1,1) sRTR(1,2) sRTR(1,3)]; %x-y-z coordinates of Tricep
+%                                                    %at time t1=0 (static)
+% m = 3; %Number of markers 
+% 
+% center_of_rot_1 = 1/m*(RGT_1 + RLE_1 + R_Tricep_1); %Calculates the center
+% %of rotation at time t1=0 (static) for the following markers: Greater
+% %Tubercle, Lateral Epicondyle and Tricep.
+% 
+% A = 1/m*((RGT_1 - center_of_rot_1)'*(RGT_1 - center_of_rot_1) +... Calculates the distribution
+%         (RLE_1 - center_of_rot_1)'*(RLE_1 - center_of_rot_1) +... %matrix A at time t1=0
+%         (R_Tricep_1 - center_of_rot_1)'*(R_Tricep_1 - center_of_rot_1));
+% 
+% for j = 1:size(RME_x,2)
+%     
+%     for i = 1:length(RME_x)
+%     
+%     m = 3; %Number of markers    
+%         
+%     RGT_2 = [RGT_x(i) RGT_y(i) RGT_z(i)]; %x-y-z coordinates of Greater Tubercle
+%                                                    %at time t2 (dynamic)
+%     
+%     RLE_2 = [RLE_x(i) RLE_y(i) RLE_z(i)]; %x-y-z coordinates of Lateral Epicondyle
+%                                                    %at time t2 (dynamic)
+%     
+%     R_Tricep_2 = [R_Tricep_x(i) R_Tricep_y(i) R_Tricep_z(i)]; %x-y-z coordinates of tricep
+%                                                    %at time t2 (dynamic)
+%         
+%     center_of_rot_2 = 1/m*(RGT_2 + RLE_2 + R_Tricep_2); %Calculates the center
+% %of rotation at time t2 (dynamic) for the following markers: Greater
+% %Tubercle, Lateral Epicondyle and Tricep.
+%     
+%     G = 1/m*((RGT_2 - center_of_rot_2)'*(RGT_1 - center_of_rot_1)... %Calculates the distribution
+%         + (RLE_2 - center_of_rot_2)'*(RLE_1 - center_of_rot_1)... %matrix G at time t2 (dynamic)
+%         + (R_Tricep_2 - center_of_rot_2)'*(R_Tricep_1 - center_of_rot_1));
+%     
+%     r = center_of_rot_2 - center_of_rot_1; %Calculates translation vector from time t1 to t2
+%     
+%     R = G*inv(A); %Calculates rotation matrix from time t1 to t2
+%     
+%     RME_2 = [RME_x(i) RME_y(i) RME_z(i)]; %x-y-z coordinates of Medial Epicondyle
+%                                           %at time t2 (dynamic)
+%     
+%     RME = RME_2' + r' + R*(RME_2' - static_RME'); %Calculates the approximated position
+%     %of the Medial Epicondyle
+%     
+%     new_RME_x(i) = RME(1); %saves RME x data to a column vector for each iteration
+%     
+%     new_RME_y(i) = RME(2); %saves RME y data to a column vector for each iteration
+%     
+%     new_RME_z(i) = RME(3); %saves RME z data to a column vector for each iteration
+%     
+%     end
+%     
+% end
 
-RGT_1 = [sRGT(1,1) sRGT(1,2) sRGT(1,3)]; %x-y-z coordinates of Greater Tubercle
-                                                   %at time t1=0 (static)
-    
-RLE_1 = [sRLE(1,1) sRLE(1,2) sRLE(1,3)]; %x-y-z coordinates of Lateral Epicondyle
-                                                   %at time t1=0 (static)
-    
-R_Tricep_1 = [sRTR(1,1) sRTR(1,2) sRTR(1,3)]; %x-y-z coordinates of Tricep
-                                                   %at time t1=0 (static)
-m = 3; %Number of markers 
-
-center_of_rot_1 = 1/m*(RGT_1 + RLE_1 + R_Tricep_1); %Calculates the center
-%of rotation at time t1=0 (static) for the following markers: Greater
-%Tubercle, Lateral Epicondyle and Tricep.
-
-A = 1/m*((RGT_1 - center_of_rot_1)'*(RGT_1 - center_of_rot_1) +... Calculates the distribution
-        (RLE_1 - center_of_rot_1)'*(RLE_1 - center_of_rot_1) +... %matrix A at time t1=0
-        (R_Tricep_1 - center_of_rot_1)'*(R_Tricep_1 - center_of_rot_1));
-
-for j = 1:size(RME_x,2)
-    
-    for i = 1:length(RME_x)
-    
-    m = 3; %Number of markers    
-        
-    RGT_2 = [RGT_x(i) RGT_y(i) RGT_z(i)]; %x-y-z coordinates of Greater Tubercle
-                                                   %at time t2 (dynamic)
-    
-    RLE_2 = [RLE_x(i) RLE_y(i) RLE_z(i)]; %x-y-z coordinates of Lateral Epicondyle
-                                                   %at time t2 (dynamic)
-    
-    R_Tricep_2 = [R_Tricep_x(i) R_Tricep_y(i) R_Tricep_z(i)]; %x-y-z coordinates of tricep
-                                                   %at time t2 (dynamic)
-        
-    center_of_rot_2 = 1/m*(RGT_2 + RLE_2 + R_Tricep_2); %Calculates the center
-%of rotation at time t2 (dynamic) for the following markers: Greater
-%Tubercle, Lateral Epicondyle and Tricep.
-    
-    G = 1/m*((RGT_2 - center_of_rot_2)'*(RGT_1 - center_of_rot_1)... %Calculates the distribution
-        + (RLE_2 - center_of_rot_2)'*(RLE_1 - center_of_rot_1)... %matrix G at time t2 (dynamic)
-        + (R_Tricep_2 - center_of_rot_2)'*(R_Tricep_1 - center_of_rot_1));
-    
-    r = center_of_rot_2 - center_of_rot_1; %Calculates translation vector from time t1 to t2
-    
-    R = G*inv(A); %Calculates rotation matrix from time t1 to t2
-    
-    RME_2 = [RME_x(i) RME_y(i) RME_z(i)]; %x-y-z coordinates of Medial Epicondyle
-                                          %at time t2 (dynamic)
-    
-    RME = RME_2' + r' + R*(RME_2' - static_RME'); %Calculates the approximated position
-    %of the Medial Epicondyle
-    
-    new_RME_x(i) = RME(1); %saves RME x data to a column vector for each iteration
-    
-    new_RME_y(i) = RME(2); %saves RME y data to a column vector for each iteration
-    
-    new_RME_z(i) = RME(3); %saves RME z data to a column vector for each iteration
-    
-    end
-    
-end
-
-new_time = time(1:length(RGT_x)) / 2;
+new_time = end_frame;
 
 % figure(1)
 % plot(new_time,RME_z(:,1),'r')
@@ -212,20 +221,21 @@ new_time = time(1:length(RGT_x)) / 2;
 
 %%
 
-g = 1;
-
-v_static = [(static_ME_x - static_RLE_x) (static_ME_y - static_RLE_y) (static_ME_z - static_RLE_z)];
-
-d_static = sqrt(v_static(:,1).^2 + v_static(:,2).^2 + v_static(:,3).^2);
-
-v = [(RME_x(:,g) - RLE_x(:,g)) (RME_y(:,g) - RLE_y(:,g)) (RME_z(:,g) - RLE_z(:,g))];
-vme = [(RME_x(:,g) ) (RME_y(:,g) ) (RME_z(:,g) )];
-vle = [( RLE_x(:,g)) (RLE_y(:,g)) ( RLE_z(:,g))];
-
-d = sqrt(v(:,1).^2 + v(:,2).^2 + v(:,3).^2);
-d = d/10;
-dme = sqrt(vme(:,1).^2 + vme(:,2).^2 + vme(:,3).^2);
-dle = sqrt(vle(:,1).^2 + vle(:,2).^2 + vle(:,3).^2);
+%neededd to draw figures 4 and 122
+% g = 1;
+% 
+% v_static = [(static_ME_x - static_RLE_x) (static_ME_y - static_RLE_y) (static_ME_z - static_RLE_z)];
+% 
+% d_static = sqrt(v_static(:,1).^2 + v_static(:,2).^2 + v_static(:,3).^2);
+% 
+% v = [(RME_x(:,g) - RLE_x(:,g)) (RME_y(:,g) - RLE_y(:,g)) (RME_z(:,g) - RLE_z(:,g))];
+% vme = [(RME_x(:,g) ) (RME_y(:,g) ) (RME_z(:,g) )];
+% vle = [( RLE_x(:,g)) (RLE_y(:,g)) ( RLE_z(:,g))];
+% 
+% d = sqrt(v(:,1).^2 + v(:,2).^2 + v(:,3).^2);
+% d = d/10;
+% dme = sqrt(vme(:,1).^2 + vme(:,2).^2 + vme(:,3).^2);
+% dle = sqrt(vle(:,1).^2 + vle(:,2).^2 + vle(:,3).^2);
 
 % 
 % figure(4)
@@ -249,6 +259,7 @@ dle = sqrt(vle(:,1).^2 + vle(:,2).^2 + vle(:,3).^2);
 % % axis([0 0.5 0 0.2])
 % legend({'me','le'},'location','southeast')
 % 
+
 
 %Establish Joint Coordinate System for BRACHIUM and ANTIBRACHIUM
 for b = 1:size(RGT_x,2)
@@ -304,6 +315,7 @@ for b = 1:size(RGT_x,2)
 
     %Setting up the Joint Coordinate System
     
+    %the purpose of the FA is to 
     FA = cross(y_dist,z_prox); %Calculates the floating axis
     
     alpha(:,b) = acosd(dot(x_prox,FA,2)); %Calculates the flexion angle in degrees
@@ -381,9 +393,9 @@ z_prox_3_denom = sqrt(z_prox_3_num(:,1).^2 + z_prox_3_num(:,2).^2 + z_prox_3_num
     
 z_prox_3 = z_prox_3_num./z_prox_3_denom;
     
-%x-axis
+    %x-axis
     
-R_Acrom_RDS = [(RDS_x(:,b) - T1_x(:,b)) (RDS_y(:,b) - T1_y(:,b)) (RDS_z(:,b) - T1_z(:,b))];
+    R_Acrom_RDS = [(RDS_x(:,b) - T1_x(:,b)) (RDS_y(:,b) - T1_y(:,b)) (RDS_z(:,b) - T1_z(:,b))];
     
     x_prox_3_num = cross(R_Acrom_RDS,z_prox_3);
     
@@ -439,25 +451,22 @@ BS_a = beta_3(:,g2);
 
 %Graphs the velocity of T1 during gc1
 
-s = trial.gait_cycles(1).start_frame;
-e = trial.gait_cycles(1).end_frame;
+% s = trial.gait_cycles(1).start_frame;
+% e = trial.gait_cycles(1).end_frame;
 
-vT1 = T1_y(s:e);
-vel = [];
+% vT1 = T1_y(s:e);
+% vel = [];
+% 
+% 
+% for i=1:length(vT1)-1
+%     vel(i) = abs(((vT1(i+1) - vT1(i)) / 0.02) / 1000);
+% end
 
-
-for i=1:length(vT1)-1
-    vel(i) = abs(((vT1(i+1) - vT1(i)) / 0.02) / 1000);
-end
-
-figure(9)
-plot((s:e-1)/100,vel)
-xlabel('seconds(s)')
-ylabel('velocity(m/s)')
-title('T1_y velocity during gc#1')
-
-gait_cycle_count
-
+% figure(9)
+% plot((s:e-1)/100,vel)
+% xlabel('seconds(s)')
+% ylabel('velocity(m/s)')
+% title('T1_y velocity during gc#1')
 
 % %Show anyway? 
 % if(no_good_cycles)
@@ -565,18 +574,19 @@ jc_angles = struct("trial_name",trial.trial_name,"angles",x,"ba_f",nBA_f,"ba_r",
 
 temp_name = char(trial.trial_name + " Angles");
 
-save([temp_name '.mat'],'jc_angles')
+save(['Produced Data/' temp_name '.mat'],'jc_angles')
 
 R_5th_M_z = R_5th_M_z;
 
 name = {trial.trial_name
         ''
         'GC#'};
-    
+
+%TODO finish
 header = {'1' '' '' '' '' '' '' '' '' '2' '' '' '' '' '' '' '' '' '3' '' '' '' '' '' '' '' '' 
            'BA_f' 'BA_r' 'BA_a' 'AP_f' 'AP_r' 'AP_a' 'BS_f' 'BS_r' 'BS_a' 'BA_f' 'BA_r' 'BA_a' 'AP_f' 'AP_r' 'AP_a' 'BS_f' 'BS_r' 'BS_a' 'BA_f' 'BA_r' 'BA_a' 'AP_f' 'AP_r' 'AP_a' 'BS_f' 'BS_r' 'BS_a'};
 
-filename = trial.trial_name + " Angular Data.xlsx";
+filename = "Produced Data/" + trial.trial_name + " Angular Data.xlsx";
 
 writecell(name,filename,'Range','A1')
 writecell(header,filename,'Range','B3')

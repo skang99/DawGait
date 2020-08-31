@@ -6,6 +6,7 @@ function [landmark_coord,trimmed_coord,cycle_time,gait_cycles] = main(dynamic_tr
 %     return;
 % end
 
+
 [R5M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC] = create_gait_cycles(dynamic_trial);
 
 %Plots the position of the right 5th metacarpal during the dynamic trial
@@ -45,6 +46,11 @@ RAC = RAC(cyc_start:cyc_end,:);
 
 [gait_cycle_frame_locations, gait_cycle_count] = find_gait_cycle_frames(R_5th_M_z);
 
+if(gait_cycle_count == 0)
+    disp("No gait cycles found")
+    return
+end
+
 
 gait_cycle_count = gait_cycle_count + 1;
 
@@ -70,6 +76,8 @@ end
 % title('Static Z Coordinates of Paw in Time') 
 
 oc = 1;
+
+gait_cycle_count
 
 for n = 1:gait_cycle_count - 1
    
@@ -220,6 +228,8 @@ for i = 1:length(gait_cycles)
 
 end
 
+
+
 trial.pos_data.R5M = R5M;
 trial.pos_data.RGT = RGT;
 trial.pos_data.RLE = RLE;
@@ -239,7 +249,7 @@ trial.gait_cycles = x;
 
 name = char(name);
 
-save([name '.mat'],'trial')
+save(['Produced Data/' name '.mat'],'trial')
 
 end
       

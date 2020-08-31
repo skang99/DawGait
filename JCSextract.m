@@ -1,4 +1,3 @@
-%temp fix
 
 function [R5M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,R2M,ACB,RAC] = JCSextract(filename)
 %This function takes an xls file and creates graphical
@@ -11,8 +10,7 @@ function [R5M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,R2M,ACB,RAC] 
 try 
     [kinematic_data,markers] = xlsread(filename);
 catch exception
-    disp("Error in opening the specified Excel file. File may not exist or is not within the current directory.");
-    throw exception
+    rethrow(exception)
 end
 
 %Creates vectors for time and position data 
@@ -22,8 +20,8 @@ time = position_data(:,1);
 % position_data = kinematic_data(7:length(kinematic_data),:);
 % time = position_data(:,2);
 
-
-time = time / 100;
+% June cal trial starts t0 at frame 94, not frame 1
+time = time / 200;
 
 
     RGT = double(subs(extract_data(position_data,markers,'GRTB'),NaN,0));

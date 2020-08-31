@@ -6,10 +6,15 @@ function [R5M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC] = cr
 
 %Reads the xls file and extracts position data and marker designations
 %Surrounded by a try-catch block to handle potential errors
+
+disp(filename)
+%full path issue?
+
 try 
     [kinematic_data,markers] = xlsread(filename);
 catch exception
     disp("Error in opening the specified Excel file. File may not exist or is not within the current directory.");
+    disp(exception)
     throw exception
 end
 
@@ -19,6 +24,7 @@ time = position_data(:,1);
 
 % position_data = kinematic_data(7:length(kinematic_data),:);
 % time = position_data(:,2);
+
 
 
 
