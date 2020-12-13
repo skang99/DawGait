@@ -48,20 +48,19 @@ function [gc_is_good] = error_check(M1,M2,error_length,static_seg,start_frame,en
         low_accept = static_seg - error_length;
         hi_accept = static_seg + error_length;
         
-        if(t) %temp debug
-            disp("Current frame # " + kk);
-            disp("Dynamic: " + AB);
-            disp("Static: " + static_seg);
-            disp("Lower bound: " + low_accept);
-            disp("Upper bound: " + hi_accept);
-            disp("current count: "  + k);
-            disp("Actual difference between stat and dyn segments " + abs(AB - static_seg))
-        end
-       
+%         if(t) %temp debug
+%             disp("Current frame # " + kk);
+%             disp("Dynamic: " + AB);
+%             disp("Static: " + static_seg);
+%             disp("Lower bound: " + low_accept);
+%             disp("Upper bound: " + hi_accept);
+%             disp("current count: "  + k);
+%             disp("Actual difference between stat and dyn segments " + abs(AB - static_seg))
+%         end        
          
         if((AB <= low_accept) || (AB >= hi_accept))
             k = k + 1;
-            if(t) disp("Frame marked as error"); end
+%             if(t) disp("Frame marked as error"); end
             error_count = error_count + 1;   
         else
             k = 0;
@@ -69,16 +68,16 @@ function [gc_is_good] = error_check(M1,M2,error_length,static_seg,start_frame,en
        
         
         if(k >= frame_errors)
-            if(t)
-                disp("Segment marked as bad")
-                disp("---")
-            end
+%             if(t)
+%                 disp("Segment marked as bad")
+%                 disp("---")
+%             end
             
             k_good = 0;      
             break;
         end %if
         
-        if(t) disp("---"); end
+%         if(t) disp("---"); end
         
      end %for
     

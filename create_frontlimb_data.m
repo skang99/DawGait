@@ -1,4 +1,4 @@
-function [R5M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC,DLMC5] = create_gait_cycles(filename)
+function [R5M,R2M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC,DLMC5] = create_frontlimb_data(filename)
 %This function takes an xls file and creates graphical
 %representations of the data input. 
 %filename: name of the xlsx file to read data from
@@ -7,14 +7,12 @@ function [R5M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC,DLMC5
 %Reads the xls file and extracts position data and marker designations
 %Surrounded by a try-catch block to handle potential errors
 
-disp(filename)
-
 try 
     [kinematic_data,markers] = xlsread(filename);
 catch exception
     disp("Error in opening the specified Excel file. File may not exist or is not within the current directory.");
     disp(exception)
-    throw exception
+    throw(exception)
 end
 
 %Creates vectors for time and position data 
@@ -24,12 +22,10 @@ time = position_data(:,1);
 % position_data = kinematic_data(7:length(kinematic_data),:);
 % time = position_data(:,2);
 
-
-
-
 time = time / 200;
 
 RGT = double(subs(extract_data(position_data,markers,'GRTB'),NaN,0));
+R2M = double(subs(extract_data(position_data,markers,'MCP2'),NaN,0));
 RLE = double(subs(extract_data(position_data,markers,'LEPI'),NaN,0));
 R5M = double(subs(extract_data(position_data,markers,'MCP5'),NaN,0));
 RLO = double(subs(extract_data(position_data,markers,'OLEC'),NaN,0));
@@ -66,7 +62,6 @@ DLMC5 = double(subs(extract_data(position_data,markers,'DLMC5'),NaN,0));
 % RTR = extract_data(position_data,markers,'R Tricep');
 % RMS = extract_data(position_data,markers,'R Medial Styloid');
 %  
-
 
 Centroid = (RAC + RSC1 + RSC2) * (1/3);
 

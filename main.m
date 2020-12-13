@@ -1,13 +1,7 @@
-function [landmark_coord,trimmed_coord,cycle_time,gait_cycles] = main(dynamic_trial,static_trial,error_length,override_arr,show_graphs)
+function [landmark_coord,trimmed_coord,cycle_time,gait_cycles] = main(dynamic_trial,name,static_trial,error_length,override_arr,show_graphs,gc_override_arr)
 
-% try
-%     [R5M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,RME,RTR,RMS,time] = create_gait_cycles(dynamic_trial);
-% catch exception %#ok<NASGU>;
-%     return;
-% end
-
-
-[R5M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC] = create_gait_cycles(dynamic_trial);
+%Frontlimb trial function
+[R5M,R2M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC,DLMC5] = create_frontlimb_data(dynamic_trial);
 
 %Plots the position of the right 5th metacarpal during the dynamic trial
 % figure(1) 
@@ -16,7 +10,7 @@ function [landmark_coord,trimmed_coord,cycle_time,gait_cycles] = main(dynamic_tr
 % ylabel('position(m)')
 % title('Z Coordinates of Paw in Time') 
 
-cycle_time = time;
+cycle_time = time * 200;
 
 R_5th_M_z = R5M(:,3);
 
@@ -25,11 +19,14 @@ landmark_coord = R_5th_M_z;
 [cyc_start,cyc_end] = find_start_cycle_frame(R_5th_M_z);
 
 R_5th_M_z = R_5th_M_z(cyc_start:cyc_end);
+
+
 trimmed_coord = R_5th_M_z;
 
 new_new_time = time(1:length(R_5th_M_z));
 
 R5M = R5M(cyc_start:cyc_end,:);
+R2M = R2M(cyc_start:cyc_end,:);
 RGT = RGT(cyc_start:cyc_end,:);
 RLE = RLE(cyc_start:cyc_end,:);
 RLO = RLO(cyc_start:cyc_end,:);
@@ -43,22 +40,14 @@ RMS = RMS(cyc_start:cyc_end,:);
 RCR = RCR(cyc_start:cyc_end,:);
 ACB = ACB(cyc_start:cyc_end,:);
 RAC = RAC(cyc_start:cyc_end,:);
+DLMC5 = DLMC5(cyc_start:cyc_end,:);
 
-[gait_cycle_frame_locations, gait_cycle_count] = find_gait_cycle_frames(R_5th_M_z);
+[gait_cycle_frame_locations, gait_cycle_count] = split_gait_cycles(R_5th_M_z);
+
 
 if(gait_cycle_count == 0)
     disp("No gait cycles found")
     return
-end
-
-
-gait_cycle_count = gait_cycle_count + 1;
-
-if(gait_cycle_frame_locations == -1) 
-    gait_cycle_frame_locations(1) = 1;
-    gait_cycle_frame_locations(2) = cyc_end - cyc_start;
-else
-    gait_cycle_locations = gait_cycle_frame_locations;
 end
 
 try
@@ -77,54 +66,49 @@ end
 
 oc = 1;
 
-gait_cycle_count
-
-for n = 1:gait_cycle_count - 1
+for n = 1:gait_cycle_count
    
     start_frame = gait_cycle_frame_locations(n);
     end_frame = gait_cycle_frame_locations(n+1);
     segment_error_checks = struct("RGT_RLE","RLO_RLS","RDS_Centroid","T1_Centroid","ACB_R5M",0);
     
+    segment_error_checks.RGT_RLE = error_check(RGT,RLE,error_length,static_RGT_RLE,start_frame,end_frame,1);
+    
     if(override_arr(oc))
-        segment_error_checks.RGT_RLE = 1;
-    else
-        segment_error_checks.RGT_RLE = error_check(RGT,RLE,error_length,static_RGT_RLE,start_frame,end_frame,1);
+        segment_error_checks.RGT_RLE = ~segment_error_checks.RGT_RLE;
     end
     
-
+    segment_error_checks.RLO_RLS = error_check(RLO,RLS,error_length,static_RLO_RLS,start_frame,end_frame,0);
+    
     if(override_arr(oc + 1))
-        segment_error_checks.RLO_RLS = 1;
-    else
-        segment_error_checks.RLO_RLS = error_check(RLO,RLS,error_length,static_RLO_RLS,start_frame,end_frame,0);
+        segment_error_checks.RLO_RLS = ~segment_error_checks.RLO_RLS;
     end
     
 
+    segment_error_checks.RDS_Centroid = error_check(RDS,Centroid,error_length,static_RDS_Centroid,start_frame,end_frame,0);
+    
     if(override_arr(oc + 2))
-        segment_error_checks.RDS_Centroid = 1;
-    else
-        segment_error_checks.RDS_Centroid = error_check(RDS,Centroid,error_length,static_RDS_Centroid,start_frame,end_frame,0);
+        segment_error_checks.RDS_Centroid = ~segment_error_checks.RDS_Centroid;
     end
     
-
+    
+    segment_error_checks.T1_Centroid = error_check(T1,Centroid,error_length,static_T1_Centroid,start_frame,end_frame,0);
+    
     if(override_arr(oc + 3))    
-        segment_error_checks.T1_Centroid = 1;
-    else
-     segment_error_checks.T1_Centroid = error_check(T1,Centroid,error_length,static_T1_Centroid,start_frame,end_frame,0);
+        segment_error_checks.T1_Centroid = ~segment_error_checks.T1_Centroid;
     end
     
-
+    
+    segment_error_checks.ACB_R5M = error_check(ACB,R5M,error_length,static_ACB_R5M,start_frame,end_frame,0);
+    
     if(override_arr(oc + 4))  
-        segment_error_checks.ACB_R5M = 1;
-    else
-        segment_error_checks.ACB_R5M = error_check(ACB,R5M,error_length,static_ACB_R5M,start_frame,end_frame,0);
+        segment_error_checks.ACB_R5M = ~segment_error_checks.ACB_R5M;
     end
     
     gait_cycles(n) = struct("start_frame",start_frame,"end_frame",end_frame,"seg_checks",segment_error_checks);
     
     oc = oc + 5;
 end
-
-
 
 if(show_graphs) 
     rgt_rle = lengthPlotter(static_RGT_RLE,RGT,RLE);
@@ -189,25 +173,33 @@ if(show_graphs)
     title('Length of ACB/R5M Static and Dynamic Segments vs Time')
 end
 
-for i = 1:gait_cycle_count - 1
+for i = 1:gait_cycle_count
     disp("GC #" + i)
     disp(gait_cycles(i).seg_checks)
 end
 
 trial = struct("trial_name",-1,"gait_cycles",-1);
 
-%temp fix, not all names are the same length, should parse for the first
-%occurence of a number
-name = extractBetween(dynamic_trial,8,strlength(dynamic_trial)-4);
+name = extractBetween(name,1,length(name)-4)
+name = char(name);
+
 trial.trial_name = name;
+
+gc_override_array = gc_override_arr(1:gait_cycle_count);
 
 for i = 1:length(gait_cycles)
     
     start_frame = gait_cycles(i).start_frame;
     end_frame = gait_cycles(i).end_frame;
-    gc_is_good = gait_cycles(i).seg_checks.RGT_RLE;
+    
+    if(gc_override_array(i))
+        gc_is_good = ~gait_cycles(i).seg_checks.RGT_RLE;
+    else
+      gc_is_good = gait_cycles(i).seg_checks.RGT_RLE;
+    end
     
     tR5M = R5M(start_frame:end_frame,:);
+    tR2M = R2M(start_frame:end_frame,:);
     tRGT = RGT(start_frame:end_frame,:);
     tRLE = RLE(start_frame:end_frame,:);
     tRLO = RLO(start_frame:end_frame,:);
@@ -218,19 +210,19 @@ for i = 1:length(gait_cycles)
     tRME = RME(start_frame:end_frame,:); 
     tRTR = RTR(start_frame:end_frame,:);
     tRMS = RMS(start_frame:end_frame,:);
+    tDLMC5 = DLMC5(start_frame:end_frame,:);
     
-    x(i) = struct("is_good",gc_is_good,"R5M", tR5M, "RGT", tRGT, "RLE", tRLE, ...
+    x(i) = struct("is_good",gc_is_good,"R5M", tR5M, "R2M", tR2M, "RGT", tRGT, "RLE", tRLE, ...
     "RLO", tRLO, "RLS", tRLS, "T1", tT1, "RDS", tRDS, "Centroid", tCentroid, "RME", tRME, ...
-    "RTR", tRTR, "RMS", tRMS, "start_frame", start_frame, "end_frame",end_frame, ...
+    "RTR", tRTR, "RMS", tRMS, "DLMC5", tDLMC5, "start_frame", start_frame, "end_frame",end_frame, ...
     "RGT_RLE", gait_cycles(i).seg_checks.RGT_RLE, "RLO_RLS", gait_cycles(i).seg_checks.RLO_RLS, ...
     "RDS_Centroid", gait_cycles(i).seg_checks.RDS_Centroid, "T1_Centroid", gait_cycles(i).seg_checks.T1_Centroid, ...
     "ACB_R5M",gait_cycles(i).seg_checks.ACB_R5M);
 
 end
 
-
-
 trial.pos_data.R5M = R5M;
+trial.pos_data.R2M = R2M;
 trial.pos_data.RGT = RGT;
 trial.pos_data.RLE = RLE;
 trial.pos_data.RLO = RLO;
@@ -244,10 +236,9 @@ trial.pos_data.RMS = RMS;
 trial.pos_data.RCR = RCR;
 trial.pos_data.ACB = ACB;
 trial.pos_data.RAC = RAC;
+trial.pos_data.DLMC5 = DLMC5;
 
 trial.gait_cycles = x;
-
-name = char(name);
 
 save(['Produced Data/' name '.mat'],'trial')
 

@@ -19,12 +19,10 @@ max_data = max_data(max_data > avg_pos);
 first_min_pos = min_data(1);
 
 for j = 1:length(min_data) %starts loop to find the first suitable minimum
-    
     %In order for a min to be considered the start of a gait cycle, the min
     %must be less than the average of the position data and is defined as
     %the point where the dog's foot is on the ground
     if (min_data(j) < avg_pos && abs(min_data(j) - avg_pos) > 0.035)  
-        
         first_min_pos = min_data(j); %A z coordinate that will correspond to a frame number at which the beginning of the gait cycle start 
         break; %breaks upon finding the first value
         
@@ -43,38 +41,15 @@ cyc_start = first_min_loc;
 marker_pos(1:first_min_loc-1) = [];
 
 % This section finds the frame where the final, full gait cycle ends
-rev_max_data = flipud(max_data);
-rev_marker_pos = flipud(marker_pos);
 rev_min_data = flipud(min_data);
-final_min = -1;
-
-for i = 1:length(rev_max_data)
-    current_max = rev_max_data(i);
+final_min = rev_min_data(1);
     
-    if(i > length(rev_min_data))
-        break;
-    end
- 
-        final_min = rev_min_data(i);
-        break;      
-    
-end
-
-min_loc = find(marker_pos == final_min);
+min_loc = find(marker_pos == final_min,1);
 marker_pos(min_loc:end,:) = [];
 
 cyc_end = cyc_start+length(marker_pos);
     
     
-    
-    
-    
-
-
-
-
-
-
 
 end
 
