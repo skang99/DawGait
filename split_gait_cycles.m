@@ -14,7 +14,7 @@ abs_min = min(marker_pos);
 
 %Trims maxes/mins that are not above/below the mean of data
 max_data = max_data(max_data > avg);
-min_data = min_data(min_data < avg & min_data ~= 0)
+min_data = min_data(min_data < avg & min_data ~= 0);
 
 % %trimmed pos data
 % avg = mean(marker_pos);
@@ -68,7 +68,6 @@ end
 %at the last pos value
 bowl_test(length(bowl_test) + 1) = length(marker_pos);
 
-bowl_test
 
 index = 1;
 check_frames = [];

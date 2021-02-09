@@ -1,4 +1,4 @@
-function [static_RGT_RLE,static_RLO_RLS,static_RDS_Centroid,static_T1_Centroid,static_ACB_R5M] = create_static_data(static_trial,new_new_time,time)
+function [static_RGT_RLE,static_RLO_RLS,static_RDS_Centroid,static_T1_Centroid,static_ACB_R5M,T1,VTR1,SC1,DLMC5,ACB,RDS] = create_static_data(static_trial,new_new_time,time)
 
 try 
 [static_data,static_coords] = xlsread(static_trial); %import excel data numeric and text
@@ -24,6 +24,11 @@ RTR = double(subs(extract_data(static_pos_data,static_coords,'TRIC'),NaN,0));
 RAC = double(subs(extract_data(static_pos_data,static_coords,'ACRM'),NaN,0));
 RSC1 = double(subs(extract_data(static_pos_data,static_coords,'SC1'),NaN,0));
 RSC2 = double(subs(extract_data(static_pos_data,static_coords,'SC2'),NaN,0));
+
+VTR1 = double(subs(extract_data(static_pos_data,static_coords,'VTR1'),NaN,0));
+SC1 = double(subs(extract_data(static_pos_data,static_coords,'SC1'),NaN,0));
+DLMC5 = double(subs(extract_data(static_pos_data,static_coords,'DLMC5'),NaN,0));
+ACB = double(subs(extract_data(static_pos_data,static_coords,'ACCB'),NaN,0));
 
 % static_pos_data = static_data(7:length(static_data),:); %Extract only the numeric data a.k.a position readings
 %  
@@ -101,6 +106,8 @@ am_x = ACB(:,1) - R5M(:,1);
 am_z = ACB(:,3) - R5M(:,3);
 am = sqrt(am_x.^2 + am_z.^2);
 static_ACB_R5M = mean(am);
+
+
 
                                                                                 
 end

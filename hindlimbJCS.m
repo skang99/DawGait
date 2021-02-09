@@ -80,7 +80,7 @@ static_RISC_z = mean(static_RISC_z);
 [RMMA_x RMMA_y RMMA_z] = extract_XYZ(RMMA);
 [RMP2_x RMP2_y RMP2_z] = extract_XYZ(RMP2);
 
-if(count_missing_data(RMEP,20))
+if(count_missing_frames(RMEP,20))
     disp("RMEP missing data")
     for k = 1:size(R5M_x)
         RMEP_x(k) = RQUA_x(k) - static_Qua_x + static_ME_x;
@@ -89,7 +89,7 @@ if(count_missing_data(RMEP,20))
     end
 end
 
-if(count_missing_data(RMMA,20))
+if(count_missing_frames(RMMA,20))
     disp("RMMA missing data")
     for k = 1:size(R5M_x)
         RMMA_x(k) = RGAS_x(k) - static_RGAS_x + static_RMMA_x;
@@ -98,7 +98,7 @@ if(count_missing_data(RMMA,20))
     end
 end
 
-if(count_missing_data(RMP2,20))
+if(count_missing_frames(RMP2,20))
     disp("RMP2 missing data")
     for k = 1:size(R5M_x)
         RMP2_x(k) = R5M_x(k) - static_5th_M_x + static_RCAL_x;
@@ -238,13 +238,23 @@ name = {trial.trial_name
         ''
         'GC#'};
 
-header = {'1' '' '' '' '' '' '' '' '' '2' '' '' '' '' '' '' '' '' '3' '' '' '' '' '' '' '' '' 
-           'KNEE_f' 'KNEE_r' 'KNEE_a' 'ANKLE_f' 'ANKLE_r' 'ANKLE_a' 'HIP_f' 'HIP_r' 'HIP_a' 'KNEE_f' 'KNEE_r' 'KNEE_a' 'ANKLE_f' 'ANKLE_r' 'ANKLE_a' 'HIP_f' 'HIP_r' 'HIP_a' 'KNEE_f' 'KNEE_r' 'KNEE_a' 'ANKLE_f' 'ANKLE_r' 'ANKLE_a' 'HIP_f' 'HIP_r' 'HIP_a'};
+header = {'1' '' '' '' '' '' '' '' ''};
+label = {'KNEE_f' 'KNEE_r' 'KNEE_a' 'ANKLE_f' 'ANKLE_r' 'ANKLE_a' 'HIP_f' 'HIP_r' 'HIP_a'};
 
 filename = "Produced Data/" + trial.trial_name + " Angular Data.xlsx";
 
-writecell(name,filename,'Range','A1');
+header = repmat(header,1,gait_cycle_count);
+label = repmat(label,1,gait_cycle_count);
+index = 10;
+
+for i=1:gait_cycle_count - 1
+    header(index) = num2cell(i + 1);
+    index = index + 9;
+end
+
+writecell(name,filename,'Range','A1')
 writecell(header,filename,'Range','B3');
+writecell(label,filename,'Range','B4');
 
 G1 = table(jc_angles.angles(1).KNEE_f,jc_angles.angles(1).KNEE_r,jc_angles.angles(1).KNEE_a,jc_angles.angles(1).ANKLE_f,jc_angles.angles(1).ANKLE_r,jc_angles.angles(1).ANKLE_a,jc_angles.angles(1).HIP_f,jc_angles.angles(1).HIP_r,jc_angles.angles(1).HIP_a);
 
@@ -256,6 +266,10 @@ if(gait_cycle_count > 2)
    G3 = table(jc_angles.angles(3).KNEE_f,jc_angles.angles(3).KNEE_r,jc_angles.angles(3).KNEE_a,jc_angles.angles(3).ANKLE_f,jc_angles.angles(3).ANKLE_r,jc_angles.angles(3).ANKLE_a,jc_angles.angles(3).HIP_f,jc_angles.angles(3).HIP_r,jc_angles.angles(3).HIP_a);
 end
 
+if(gait_cycle_count > 3)
+   G4 = table(jc_angles.angles(4).KNEE_f,jc_angles.angles(4).KNEE_r,jc_angles.angles(4).KNEE_a,jc_angles.angles(4).ANKLE_f,jc_angles.angles(4).ANKLE_r,jc_angles.angles(4).ANKLE_a,jc_angles.angles(4).HIP_f,jc_angles.angles(4).HIP_r,jc_angles.angles(4).HIP_a);
+end
+
 writetable(G1,filename,'Sheet',1,'Range','B5','WriteVariableNames',false);
 
 if(gait_cycle_count > 1)
@@ -264,6 +278,10 @@ end
 
 if(gait_cycle_count > 2)
     writetable(G3,filename,'Sheet',1,'Range','T5','WriteVariableNames',false);
+end
+
+if(gait_cycle_count > 3)
+    writetable(G4,filename,'Sheet',1,'Range','T5','WriteVariableNames',false);
 end
 
 

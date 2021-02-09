@@ -1,4 +1,4 @@
-function [R5M,R2M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC,DLMC5] = create_frontlimb_data(filename)
+function [R5M,R2M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC,DLMC5,VTR1,RSC1] = create_frontlimb_data(filename)
 %This function takes an xls file and creates graphical
 %representations of the data input. 
 %filename: name of the xlsx file to read data from
@@ -46,22 +46,8 @@ ACB = double(subs(extract_data(position_data,markers,'ACCB'),NaN,0));
 RAC = double(subs(extract_data(position_data,markers,'ACRM'),NaN,0));
 DLMC5 = double(subs(extract_data(position_data,markers,'DLMC5'),NaN,0));
 
-% RGT = extract_data(position_data,markers,'R Greater Tubercle');
-% RLE = extract_data(position_data,markers,'R Lateral Epicondyle');
-% R5M = extract_data(position_data,markers,'R 5th Metacarpal');
-% RLO = extract_data(position_data,markers,'R Lateral Olecranon');
-% RLS = extract_data(position_data,markers,'R Lateral Styloid');
-% T1 = extract_data(position_data,markers,'T1');
-% RDS = extract_data(position_data,markers,'R Dorsal Scapula');
-%  
-% RAC = extract_data(position_data,markers,'R Acromion');
-% RSC1 = extract_data(position_data,markers,'RSC1');
-% RSC2 = extract_data(position_data,markers,'RSC2');
-% 
-% RME = extract_data(position_data,markers,'R Medial Epicondyle');
-% RTR = extract_data(position_data,markers,'R Tricep');
-% RMS = extract_data(position_data,markers,'R Medial Styloid');
-%  
+VTR1 = double(subs(extract_data(position_data,markers,'VTR1'),NaN,0));
+
 
 Centroid = (RAC + RSC1 + RSC2) * (1/3);
 

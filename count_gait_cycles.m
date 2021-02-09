@@ -44,7 +44,7 @@ if count == 0
 else
     gait_cycle_loc(1) = 1;
     for i = 1:length(new_min_pos) 
-        t = find(R_5th_M_z == new_min_pos(i))   
+        t = find(R_5th_M_z == new_min_pos(i));
         gait_cycle_loc(i+1) = t;         
     end %for  
 end %if

@@ -67,20 +67,15 @@ de_z = RFH(:,3) - RLMA(:,3);
 de = sqrt(de_x.^2 + de_z.^2); 
 static_RFH_RLMA = mean(de); 
 
-size(RISC)
-disp("riwg")
-size(RIWG)
 gj_x = RIWG(:,1) - RISC(:,1); 
 gj_z = RIWG(:,3) - RISC(:,3); 
 gj = sqrt(gj_x.^2 + gj_z.^2); 
 static_RIWG_RISC = mean(gj);      
-
               
 hb_x = CRS(:,1) - RISC(:,1); 
 hb_z = CRS(:,3) - RISC(:,3); 
 hb = sqrt(hb_x.^2 + hb_z.^2);
 static_CRS_RISC = mean(hb);
-
 
 am_x = RCAL(:,1) - RMP5(:,1);
 am_z = RCAL(:,3) - RMP5(:,3);

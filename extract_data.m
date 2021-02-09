@@ -1,11 +1,11 @@
-function [datacoord] = extract_data(data,marker,anatLandmark)
+function [datacoord] = extract_data(data,markers,anatLandmark)
 %data: input numeric data extracted from the xls file
-%marker: Designation given to the anatomical markers, eg, Xyphoid, L.Ischium, etc.
+%markers: Designations given to the anatomical markers, eg, Xyphoid, L.Ischium, etc.
 %anatLandmark: Label of the landmark recorded
 %RETURNS: An array of position data for the specified anatomical landmark
 
 %New system
-label = strfind(marker(3,:),anatLandmark);
+label = strfind(markers(3,:),anatLandmark);
 
 % label = strfind(marker(4,:),anatLandmark);
 

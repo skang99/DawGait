@@ -1,7 +1,7 @@
 function [landmark_coord,trimmed_coord,cycle_time,gait_cycles] = main(dynamic_trial,name,static_trial,error_length,override_arr,show_graphs,gc_override_arr)
 
 %Frontlimb trial function
-[R5M,R2M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC,DLMC5] = create_frontlimb_data(dynamic_trial);
+[R5M,R2M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC,DLMC5,VTR1,SC1] = create_frontlimb_data(dynamic_trial);
 
 %Plots the position of the right 5th metacarpal during the dynamic trial
 % figure(1) 
@@ -19,7 +19,6 @@ landmark_coord = R_5th_M_z;
 [cyc_start,cyc_end] = find_start_cycle_frame(R_5th_M_z);
 
 R_5th_M_z = R_5th_M_z(cyc_start:cyc_end);
-
 
 trimmed_coord = R_5th_M_z;
 
@@ -41,6 +40,9 @@ RCR = RCR(cyc_start:cyc_end,:);
 ACB = ACB(cyc_start:cyc_end,:);
 RAC = RAC(cyc_start:cyc_end,:);
 DLMC5 = DLMC5(cyc_start:cyc_end,:);
+VTR1 = VTR1(cyc_start:cyc_end,:);
+SC1 = SC1(cyc_start:cyc_end,:);
+
 
 [gait_cycle_frame_locations, gait_cycle_count] = split_gait_cycles(R_5th_M_z);
 
@@ -51,12 +53,94 @@ if(gait_cycle_count == 0)
 end
 
 try
-    [static_RGT_RLE,static_RLO_RLS,static_RDS_Centroid,static_T1_Centroid,static_ACB_R5M] = create_static_data(static_trial,new_new_time,time);
+    [static_RGT_RLE,static_RLO_RLS,static_RDS_Centroid,static_T1_Centroid,static_ACB_R5M,sT1,sVTR1,sSC1,sDLMC5,sACB,sRDS] = create_static_data(static_trial,new_new_time,time);
 catch exception  
     disp(getReport(exception))
-    
 end
-                   
+
+if(count_missing_frames(T1,20))
+    disp("T1 missing 20 frames")
+    
+    [VTR1_x VTR1_y VTR1_z] = extract_XYZ(VTR1);
+    [sVTR1_x sVTR1_y sVTR1_z] = extract_XYZ(sVTR1);
+    
+    sVTR1_x = mean(sVTR1_x);
+    sVTR1_y = mean(sVTR1_y);
+    sVTR1_z = mean(sVTR1_z);
+    
+    [sT1_x sT1_y sT1_z] = extract_XYZ(sT1);
+    
+    sT1_x = mean(sT1_x);
+    sT1_y = mean(sT1_y);
+    sT1_z = mean(sT1_z);
+    
+    for k = 1:length(R5M(:,1))
+        T1_x(k) = VTR1_x(k) - sVTR1_x + sT1_x;
+        T1_y(k) = VTR1_y(k) - sVTR1_y + sT1_y;
+        T1_z(k) = VTR1_z(k) - sVTR1_z + sT1_z;
+    end
+       
+    T1 = [T1_x; T1_y; T1_z]';
+  
+end
+
+if(count_missing_frames(RDS,20))
+    disp("RDS missing data")    
+    [SC1_x SC1_y SC1_z] = extract_XYZ(SC1);
+    [sSC1_x sSC1_y sSC1_z] = extract_XYZ(sSC1);
+    
+    sSC1_x = mean(sSC1_x);
+    sSC1_y = mean(sSC1_y);
+    sSC1_z = mean(sSC1_z);
+    
+    [sRDS_x sRDS_y sRDS_z] = extract_XYZ(sRDS);
+    
+    sRDS_x = mean(sRDS_x);
+    sRDS_y = mean(sRDS_y);
+    sRDS_z = mean(sRDS_z);
+    
+    for k = 1:length(R5M(:,1))
+        RDS_x(k) = SC1_x(k) - sSC1_x + sRDS_x;
+        RDS_y(k) = SC1_y(k) - sSC1_y + sRDS_y;
+        RDS_z(k) = SC1_z(k) - sSC1_z + sRDS_z;
+    end
+       
+    RDS = [RDS_x; RDS_y; RDS_z]'; 
+end
+
+mark_ACB_R5M_good = 0;
+
+if(~isempty(DLMC5) && ~count_missing_frames(DLMC5,20))
+    
+    %If ACB is reconstructed from DLMC5 data, the segment created later
+    %should be marked as good. Otherwise, ACB_R5M will be error checked
+    disp("Constructing ACB using DLMC5 data") 
+    mark_ACB_R5M_good = 1;
+    
+    [DLMC5_x DLMC5_y DLMC5_z] = extract_XYZ(DLMC5);  
+    [sDLMC5_x sDLMC5_y sDLMC5_z] = extract_XYZ(sDLMC5);
+    
+    sDLMC5_x = mean(sDLMC5_x);
+    sDLMC5_y = mean(sDLMC5_y);
+    sDLMC5_z = mean(sDLMC5_z);
+    
+    [sACB_x sACB_y sACB_z] = extract_XYZ(sACB);
+    
+    sACB_x = mean(sACB_x);
+    sACB_y = mean(sACB_y);
+    sACB_z = mean(sACB_z);
+    
+    for k = 1:size(R5M(:,1))
+        ACB_x(k) = DLMC5_x(k) - sDLMC5_x + sACB_x;
+        ACB_y(k) = DLMC5_y(k) - sDLMC5_y + sACB_y;
+        ACB_z(k) = DLMC5_z(k) - sDLMC5_z + sACB_z;
+    end
+    
+    ACB = [ACB_x; ACB_y; ACB_z]';
+end
+
+% ACB = replace_marker_frames(t,ACB)
+
 % %Plots the position of the right 5th metacarpal during the static trial
 % figure(3) %seperates graph into figure 1
 % plot(time,static_R_5th_M_z) %plots original Z-paw data vs time
@@ -98,8 +182,11 @@ for n = 1:gait_cycle_count
         segment_error_checks.T1_Centroid = ~segment_error_checks.T1_Centroid;
     end
     
-    
-    segment_error_checks.ACB_R5M = error_check(ACB,R5M,error_length,static_ACB_R5M,start_frame,end_frame,0);
+    if(mark_ACB_R5M_good)
+        segment_error_checks.ACB_R5M = 1;
+    else
+        segment_error_checks.ACB_R5M = error_check(ACB,R5M,error_length,static_ACB_R5M,start_frame,end_frame,0);
+    end
     
     if(override_arr(oc + 4))  
         segment_error_checks.ACB_R5M = ~segment_error_checks.ACB_R5M;
@@ -180,7 +267,7 @@ end
 
 trial = struct("trial_name",-1,"gait_cycles",-1);
 
-name = extractBetween(name,1,length(name)-4)
+name = extractBetween(name,1,length(name)-4);
 name = char(name);
 
 trial.trial_name = name;

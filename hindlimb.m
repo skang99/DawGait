@@ -81,7 +81,7 @@ for n = 1:gait_cycle_count
         segment_error_checks.RFH_RLMA = ~segment_error_checks.RFH_RLMA;
     end
     
-    segment_error_checks.RIWG_RISC = error_check(RIWG,RISC,error_length,static_RIWG_RISC,start_frame,end_frame,0)
+    segment_error_checks.RIWG_RISC = error_check(RIWG,RISC,error_length,static_RIWG_RISC,start_frame,end_frame,0);
     
     % RIWG_RISC
     if(override_arr(oc + 2))

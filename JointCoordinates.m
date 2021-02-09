@@ -1,7 +1,7 @@
 function [BA_f,BA_r,BA_a,AP_f,AP_r,AP_a,BS_f,BS_r,BS_a,new_time,R_5th_M_z,frames,no_good_cycles,gait_cycle_count] = JointCoordinates(dynamic_trial,static_trial)
 
 try
-[sR5M,sRGT,sRLE,sRLO,sRLS,sT1,sRDS,sCentroid,time,sRME,sRMS,sRTR,sRCR,sR2M,sACB,sRAC,sDLMC5] = JCSextract(static_trial);
+[sR5M,sRGT,sRLE,sRLO,sRLS,sT1,sRDS,sCentroid,time,sRME,sRMS,sRTR,sRCR,sR2M,sACB,sRAC] = JCSextract(static_trial);
 catch exception
     rethrow(exception)
 end
@@ -20,10 +20,6 @@ load(['Produced Data/' dynamic_trial])
 [static_Centroid_x static_Centroid_y static_Centroid_z] = extract_XYZ(sCentroid);
 [static_RDS_x static_RDS_y static_RDS_z] = extract_XYZ(sRDS);
 [static_ACB_x static_ACB_y static_ACB_z] = extract_XYZ(sACB);
-
-if(~isempty(sDLMC5))
-	[static_DLMC5_x static_DLMC5_y static_DLMC5_z] = extract_XYZ(sDLMC5);
-end
 
 gait_cycle_count = length(trial.gait_cycles);
 
@@ -45,10 +41,6 @@ RDS = trial.pos_data.RDS;
 RCR = trial.pos_data.RCR;
 RAC = trial.pos_data.RAC;
 ACB = trial.pos_data.ACB;
-
-if(~isempty(sDLMC5))
-    DLMC5 = trial.pos_data.DLMC5;
-end
 
 %allows for static and dynamic matrix dimensions to agree
 end_frame = length(trial.pos_data.R5M);
@@ -80,13 +72,6 @@ static_5th_M_z = mean(static_5th_M_z);
 static_R_2_x = mean(static_R_2_x);
 static_R_2_y = mean(static_R_2_y);
 static_R_2_z = mean(static_R_2_z);
-
-if(~isempty(sDLMC5))
-    static_DLMC5_x = mean(static_DLMC5_x);
-    static_DLMC5_y = mean(static_DLMC5_y);
-    static_DLMC5_z = mean(static_DLMC5_z);
-end
-
 static_ACB_x = mean(static_ACB_x);
 static_ACB_y = mean(static_ACB_y);
 static_ACB_z = mean(static_ACB_z);
@@ -105,50 +90,40 @@ R2M_z = [];
 
 [R_Tricep_x R_Tricep_y R_Tricep_z] = extract_XYZ(RTR);
 [RCR_x RCR_y RCR_z] = extract_XYZ(RCR);
-if(~isempty(sDLMC5))
-    [DLMC5_x DLMC5_y DLMC5_z] = extract_XYZ(DLMC5);
-end
 
-if(count_missing_data(RME,20))
+
+if(count_missing_frames(RME,20))
     disp("RME missing data")
     for k = 1:size(R5M_x)
         RME_x(k) = R_Tricep_x(k) - static_Tri_x + static_ME_x;
         RME_y(k) = R_Tricep_y(k) - static_Tri_y + static_ME_y;
         RME_z(k) = R_Tricep_z(k) - static_Tri_z + static_ME_z;
     end
+    
+    RME = [RME_x; RME_y; RME_z;]';
 end
 
-if(count_missing_data(RMS,20))
+if(count_missing_frames(RMS,20))
     disp("RMS missing data")
     for k = 1:size(R5M_x)
         RMS_x(k) = RCR_x(k) - static_RCR_x + static_MS_x;
         RMS_y(k) = RCR_y(k) - static_RCR_y + static_MS_y;
         RMS_z(k) = RCR_z(k) - static_RCR_z + static_MS_z;
     end
+    
+    RMS = [RMS_x; RMS_y; RMS_z;]';
 end
 
-if(count_missing_data(R2M,20))
+if(count_missing_frames(R2M,20))
     disp("RMP2 missing data")
     for k = 1:size(R5M_x)
         R2M_x(k) = R5M_x(k) - static_5th_M_x + static_R_2_x;
         R2M_y(k) = R5M_y(k) - static_5th_M_y + static_R_2_y;
         R2M_z(k) = R5M_z(k) - static_5th_M_z + static_R_2_z;  
     end
+    
+    R2M = [R2M_x; R2M_y; R2M_z]';
 end
-
-if(~isempty(sDLMC5))
-    disp("constructing acb from static_coords")
-    for k = 1:size(R5M_x,2)
-        ACB_x = DLMC5_x(:,k) - static_DLMC5_x + static_ACB_x;
-        ACB_y = DLMC5_y(:,k) - static_DLMC5_y + static_ACB_y;
-        ACB_z = DLMC5_z(:,k) - static_DLMC5_z + static_ACB_z;
-    end
-end
-
-
-RME = [RME_x RME_y RME_z];
-RMS = [RMS_x RMS_y RMS_z];
-R2M = [R2M_x R2M_y RMS_z];
 
 new_time = 1:end_frame;
 
@@ -158,9 +133,9 @@ ps1 = 0;
 ps2 = 0;
 ps3 = 0;
 
-[BA_f BA_r BA_a ps1 ps2 ps3] = create_angle_data(RLE,RME,RGT,RLS,RMS,RLO,bm,ps1,ps2,ps3);
-[AP_f AP_r AP_a ps1 ps2 ps3] = create_angle_data(bm,bm,bm,R5M,R2M,ACB,bm,ps1,ps2,ps3);
-[BS_f BS_r BS_a ps1 ps2 ps3] = create_angle_data(Centroid,T1,RDS,bm,bm,bm,bm,ps1,ps2,ps3);
+[BA_f BA_r BA_a BS_f BS_r BS_a AP_f AP_r AP_a] = create_angle_data(RLE,RME,RGT,RLS,RMS,RLO,R5M,R2M,ACB,T1,RDS,RAC);
+
+
 
 
 %Graphs the velocity of T1 during gc1
@@ -208,8 +183,8 @@ for i = 1:gait_cycle_count
 %     end
     
     
-    start_frame = trial.gait_cycles(i).start_frame;
-    end_frame = trial.gait_cycles(i).end_frame;
+    start_frame = trial.gait_cycles(i).start_frame
+    end_frame = trial.gait_cycles(i).end_frame - 1
     gc_length = abs(start_frame - end_frame) + 1;
     
     if(trial.gait_cycles(i).RGT_RLE && trial.gait_cycles(i).RLO_RLS)
@@ -245,10 +220,10 @@ for i = 1:gait_cycle_count
     %shoulder
     if(trial.gait_cycles(i).RGT_RLE && trial.gait_cycles(i).RDS_Centroid && trial.gait_cycles(i).T1_Centroid)
         disp("Creating shoulder data for gc # " + i)
-        tBS_f = BS_f(start_frame:end_frame); 
+        tBS_f = BS_f(start_frame:end_frame)
         tBS_r = BS_r(start_frame:end_frame);
         tBS_a = BS_a(start_frame:end_frame);
-        nBS_f = [nBS_f; tBS_f];
+        nBS_f = [nBS_f; tBS_f]
         nBS_r = [nBS_r; tBS_r];
         nBS_a = [nBS_a; tBS_a];
     else
@@ -268,6 +243,8 @@ for i = 1:length(trial.gait_cycles)
     frames(i+1) = trial.gait_cycles(i).end_frame;
 end
 
+%Look at what n and t are producing
+
 jc_angles = struct("trial_name",trial.trial_name,"angles",x,"ELB_f",nBA_f,"ELB_r",nBA_r,"ELB_a",nBA_a,"CARP_f",nAP_f,"CARP_r",nAP_r,"CARP_a",nAP_a,"SHLD_f",nBS_f,"SHLD_r",nBS_r,"SHLD_a",nBS_a);
 
 temp_name = char(trial.trial_name + " Angles");
@@ -280,13 +257,23 @@ name = {trial.trial_name
         ''
         'GC#'};
 
-header = {'1' '' '' '' '' '' '' '' '' '2' '' '' '' '' '' '' '' '' '3' '' '' '' '' '' '' '' '' 
-           'ELB_f' 'ELB_r' 'ELB_a' 'CARP_f' 'CARP_r' 'CARP_a' 'SHLD_f' 'SHLD_r' 'SHLD_a' 'ELB_f' 'ELB_r' 'ELB_a' 'CARP_f' 'CARP_r' 'CARP_a' 'SHLD_f' 'SHLD_r' 'SHLD_a' 'ELB_f' 'ELB_r' 'ELB_a' 'CARP_f' 'CARP_r' 'CARP_a' 'SHLD_f' 'SHLD_r' 'SHLD_a'};
-
 filename = "Produced Data/" + trial.trial_name + " Angular Data.xlsx";
 
-writecell(name,filename,'Range','A1');
+header = {'1' '' '' '' '' '' '' '' ''};
+label = {'ELB_f' 'ELB_r' 'ELB_a' 'CARP_f' 'CARP_r' 'CARP_a' 'SHLD_f' 'SHLD_r' 'SHLD_a'};
+
+header = repmat(header,1,gait_cycle_count);
+label = repmat(label,1,gait_cycle_count);
+index = 10;
+
+for i=1:gait_cycle_count - 1
+    header(index) = num2cell(i + 1);
+    index = index + 9;
+end
+
+writecell(name,filename,'Range','A1')
 writecell(header,filename,'Range','B3');
+writecell(label,filename,'Range','B4');
 
 G1 = table(jc_angles.angles(1).ELB_f,jc_angles.angles(1).ELB_r,jc_angles.angles(1).ELB_a,jc_angles.angles(1).CARP_f,jc_angles.angles(1).CARP_r,jc_angles.angles(1).CARP_a,jc_angles.angles(1).SHLD_f,jc_angles.angles(1).SHLD_r,jc_angles.angles(1).SHLD_a);
 
@@ -296,6 +283,10 @@ end
 
 if(gait_cycle_count > 2)
     G3 = table(jc_angles.angles(3).ELB_f,jc_angles.angles(3).ELB_r,jc_angles.angles(3).ELB_a,jc_angles.angles(3).CARP_f,jc_angles.angles(3).CARP_r,jc_angles.angles(3).CARP_a,jc_angles.angles(3).SHLD_f,jc_angles.angles(3).SHLD_r,jc_angles.angles(3).SHLD_a);
+end
+
+if(gait_cycle_count > 3)
+    G4 = table(jc_angles.angles(4).ELB_f,jc_angles.angles(4).ELB_r,jc_angles.angles(4).ELB_a,jc_angles.angles(4).CARP_f,jc_angles.angles(4).CARP_r,jc_angles.angles(4).CARP_a,jc_angles.angles(4).SHLD_f,jc_angles.angles(4).SHLD_r,jc_angles.angles(4).SHLD_a);
 end
 
 writetable(G1,filename,'Sheet',1,'Range','B5','WriteVariableNames',false);
@@ -308,6 +299,9 @@ if(gait_cycle_count > 2)
     writetable(G3,filename,'Sheet',1,'Range','T5','WriteVariableNames',false);
 end
 
+if(gait_cycle_count > 3)
+    writetable(G4,filename,'Sheet',1,'Range','AC5','WriteVariableNames',false);
+end
 
 
 end
