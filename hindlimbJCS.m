@@ -1,23 +1,5 @@
 function [BA_f,BA_r,BA_a,AP_f,AP_r,AP_a,BS_f,BS_r,BS_a,new_time,R_5th_M_z,frames,no_good_cycles,gait_cycle_count] = hindlimbJCS(dynamic_trial,static_trial)
-
-try
-[sRMP5,sRGT,sRLEP,sRFH,sRLMA,sCRS,sRIWG,time,sRMEP,sRMMA,sRQUA,sGAS,sRCAL,sRISC] = hindlimbJCSextract(static_trial);
-catch exception
-    rethrow(exception)
-end
-
 load(['Produced Data/' dynamic_trial])
-
-[static_5th_M_x static_5th_M_y static_5th_M_z] = extract_XYZ(sRMP5);
-[static_RLEP_x static_RLEP_y static_RLEP_z] = extract_XYZ(sRLEP);
-[static_Qua_x static_Qua_y static_Qua_z] = extract_XYZ(sRQUA);
-[static_ME_x static_ME_y static_ME_z] = extract_XYZ(sRMEP);
-[static_RGAS_x static_RGAS_y static_RGAS_z] = extract_XYZ(sGAS);
-[static_RMMA_x static_RMMA_y static_RMMA_z] = extract_XYZ(sRMMA);
-[static_RCAL_x static_RCAL_y static_RCAL_z] = extract_XYZ(sRCAL);
-[static_CRS_x static_CRS_y static_CRS_z] = extract_XYZ(sCRS);
-[static_RIWG_x static_RIWG_y static_RIWG_z] = extract_XYZ(sRIWG);
-[static_RISC_x static_RISC_y static_RISC_z] = extract_XYZ(sRISC);
 
 gait_cycle_count = length(trial.gait_cycles);
 
@@ -40,88 +22,11 @@ RGAS = trial.pos_data.RGAS;
 RCAL = trial.pos_data.RCAL;
 RISC = trial.pos_data.RISC;
 
-%allows for static and dynamic matrix dimensions to agree
 end_frame = length(trial.pos_data.RMP5);
-
-static_RLEP_x = mean(static_RLEP_x);
-static_RLEP_y = mean(static_RLEP_y);
-static_RLEP_z = mean(static_RLEP_y);
-
-static_Qua_x = mean(static_Qua_x);
-static_Qua_y = mean(static_Qua_y);
-static_Qua_z = mean(static_Qua_z);
-
-static_ME_x = mean(static_ME_x);
-static_ME_y = mean(static_ME_y);
-static_ME_z = mean(static_ME_z);
-
-static_RGAS_x = mean(static_RGAS_x);
-static_RGAS_y = mean(static_RGAS_y);
-static_RGAS_z = mean(static_RGAS_z);
-
-static_RMMA_x = mean(static_RMMA_x);
-static_RMMA_y = mean(static_RMMA_y);
-static_RMMA_z = mean(static_RMMA_z);
-
-static_5th_M_x = mean(static_5th_M_x);
-static_5th_M_y = mean(static_5th_M_y);
-static_5th_M_z = mean(static_5th_M_z);
-
-static_RCAL_x = mean(static_RCAL_x);
-static_RCAL_y = mean(static_RCAL_y);
-static_RCAL_z = mean(static_RCAL_z);
-
-static_RISC_x = mean(static_RISC_x);
-static_RISC_y = mean(static_RISC_y);
-static_RISC_z = mean(static_RISC_z);
-
-[RQUA_x RQUA_y RQUA_z] = extract_XYZ(RQUA);
-[RGAS_x RGAS_y RGAS_z] = extract_XYZ(RGAS);
-[RMMA_x RMMA_y RMMA_z] = extract_XYZ(RMMA);
-[RMP2_x RMP2_y RMP2_z] = extract_XYZ(RMP2);
-
-if(count_missing_frames(RMEP,20))
-    disp("RMEP missing data")
-    for k = 1:size(R5M_x)
-        RMEP_x(k) = RQUA_x(k) - static_Qua_x + static_ME_x;
-        RMEP_y(k) = RQUA_y(k) - static_Qua_y + static_ME_y;
-        RMEP_z(k) = RQUA_z(k) - static_Qua_z + static_ME_z;
-    end
-end
-
-if(count_missing_frames(RMMA,20))
-    disp("RMMA missing data")
-    for k = 1:size(R5M_x)
-        RMMA_x(k) = RGAS_x(k) - static_RGAS_x + static_RMMA_x;
-        RMMA_y(k) = RGAS_y(k) - static_RGAS_y + static_RMMA_y;
-        RMMA_z(k) = RGAS_z(k) - static_RGAS_z + static_RMMA_z;
-    end
-end
-
-if(count_missing_frames(RMP2,20))
-    disp("RMP2 missing data")
-    for k = 1:size(R5M_x)
-        RMP2_x(k) = R5M_x(k) - static_5th_M_x + static_RCAL_x;
-        RMP2_y(k) = R5M_y(k) - static_5th_M_y + static_RCAL_y;
-        RMP2_z(k) = R5M_z(k) - static_5th_M_z + static_RCAL_z;  
-    end
-end
-
-RMEP = [RMEP_x RMEP_y RMEP_z];
-RMMA = [RMMA_x RMMA_y RMMA_z];
-R2M = [RMP2_x RMP2_y RMP2_z];
 
 new_time = 1:end_frame;
 
-bm = [-1 -1 -1];
-
-ps1 = 0;
-ps2 = 0;
-ps3 = 0;
-
-[BA_f BA_r BA_a ps1 ps2 ps3] = create_angle_data(RLEP,RMEP,RGT,RLMA,RMMA,RFH,bm,ps1,ps2,ps3);
-[AP_f AP_r AP_a ps1 ps2 ps3] = create_angle_data(bm,bm,bm,RMP5,R2M,RCAL,bm,ps1,ps2,ps3);
-[BS_f BS_r BS_a ps1 ps2 ps3] = create_angle_data(RISC,CRS,RIWG,bm,bm,bm,bm,ps1,ps2,ps3);
+[BA_f BA_r BA_a BS_f BS_r BS_a AP_f AP_r AP_a] = create_hindlimb_angle_data(RLEP,RMEP,RGT,RLMA,RMMA,RFH,RMP5,RMP2,RCAL,RISC,CRS,RIWG);
 
 
 %Graphs the velocity of T1 during gc1
@@ -174,7 +79,7 @@ for i = 1:gait_cycle_count
     gc_length = abs(start_frame - end_frame) + 1;
     
     if(trial.gait_cycles(i).RGT_RLEP && trial.gait_cycles(i).RFH_RLMA)
-        disp("Creating elbow data for gc # " + i)
+        disp("Creating knee data for gc # " + i)
         tBA_f = BA_f(start_frame:end_frame);
         tBA_r = BA_r(start_frame:end_frame);
         tBA_a = BA_a(start_frame:end_frame);
@@ -188,7 +93,7 @@ for i = 1:gait_cycle_count
     end
     
     if(trial.gait_cycles(i).RCAL_RMP5 && trial.gait_cycles(i).RFH_RLMA)
-        disp("Creating carpus data for gc # " + i)
+        disp("Creating ankle data for gc # " + i)
         tAP_f = AP_f(start_frame:end_frame);
         tAP_r = AP_r(start_frame:end_frame);
         tAP_a = AP_a(start_frame:end_frame);
@@ -202,7 +107,7 @@ for i = 1:gait_cycle_count
     end 
     
     if(trial.gait_cycles(i).RGT_RLEP && trial.gait_cycles(i).RIWG_RISC && trial.gait_cycles(i).CRS_RISC)
-        disp("Creating shoulder data for gc # " + i)
+        disp("Creating hip data for gc # " + i)
         tBS_f = BS_f(start_frame:end_frame); 
         tBS_r = BS_r(start_frame:end_frame);
         tBS_a = BS_a(start_frame:end_frame);

@@ -50,11 +50,17 @@ catch exception
     disp(getReport(exception))
     return
 end
-if(count_missing_frames(RMEP,20) && reconstruct_arr(2))
+
+RMEP = reconstruct_marker(RQUA,RGT,RLEP,sRQUA,sRGT,sRLEP,sRMEP);
+
+if(count_missing_frames(RMEP,20))
     RMEP = reconstruct_marker(RQUA,RGT,RLEP,sRQUA,sRGT,sRLEP,sRMEP);
 end
 
-if(count_missing_frames(RMP2,20) && reconstruct_arr(3))
+%MP2
+% R5M, RCAL
+
+if(count_missing_frames(RMP2,20))
     [RMP2_x RMP2_y RMP2_z] = extract_XYZ(RMP5);
     [sRMP2_x sRMP2_y sRMP2_z] = extract_XYZ(sRMP5);
     [RCAL_x RCAL_y RCAL_z] = extract_XYZ(RCAL);
@@ -79,26 +85,19 @@ if(count_missing_frames(RMP2,20) && reconstruct_arr(3))
     
     RMP2_2 = [RMP2_x; RMP2_y; RMP2_z]';
     
-   for i=1:length(RMP5_x)
-        rRMP2_x(i) = (RMP2_1(i,1) + RMP2_2(i,1)) / 2;
-        rRMP2_y(i) = (RMP2_1(i,2) + RMP2_2(i,2)) / 2;
-        rRMP2_z(i) = (RMP2_1(i,3) + RMP2_2(i,3)) / 2;
-   end
-    
-   RMP2 = [rRMP2_x; rRMP2_y; rRMP2_z]';
+    RMP2 = 
+       
+   
 end
 
-if(count_missing_frames(RMMA,20) && reconstruct_arr(5))
-    RMMA = reconstruct_marker(RLMA,RGAS,RFH,sRLMA,sRGAS,sRFH,sRMMA);
-end
+%RMMA
+% RLMA, RGAS, RFH (conditional first)
 
-if(count_missing_frames(RLEP,20) && reconstruct_arr(1))
-    RLEP = reconstruct_marker(RGT,RQUA,RCGT,sRGT,sRQUA,sRCGT,sRLEP);
-end
+%RLEP
+% RGT, RQUA, RCGT
 
-if(count_missing_frames(RFH,20) && reconstruct_arr(4))
-    RFH = reconstruct_marker(RLMA,RPTC,RGAS,sRLMA,sRPTC,sRGAS,sRFH);
-end
+%RFH
+% RLMA, RPTC, RGAS
   
 % %Plots the position of the right 5th metacarpal during the static trial
 % figure(3) %seperates graph into figure 1

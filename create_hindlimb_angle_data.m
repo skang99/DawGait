@@ -1,30 +1,25 @@
-function [BA_f BA_r BA_a BS_f BS_r BS_a AP_f AP_r AP_a] = create_angle_data(RLE,RME,RGT,RLS,RMS,RLO,R5M,R2M,ACB,T1,RDS,RAC,Centroid)
+function [BA_f BA_r BA_a BS_f BS_r BS_a AP_f AP_r AP_a] = create_hindlimb_angle_data(RLEP,RMEP,RGT,RLMA,RMMA,RFH,RMP5,R2M,RCAL,RISC,CRS,RIWG)
 
-[RLE_x RLE_y RLE_z] = extract_XYZ(RLE);
-[RME_x RME_y RME_z] = extract_XYZ(RME);
+[RLEP_x RLEP_y RLEP_z] = extract_XYZ(RLEP);
+[RMEP_x RMEP_y RMEP_z] = extract_XYZ(RMEP);
 [RGT_x RGT_y RGT_z] = extract_XYZ(RGT);
-[RLS_x RLS_y RLS_z] = extract_XYZ(RLS);
-[RMS_x RMS_y RMS_z] = extract_XYZ(RMS);
-[RLO_x RLO_y RLO_z] = extract_XYZ(RLO);
-[R5M_x R5M_y R5M_z] = extract_XYZ(R5M);
+[RLMA_x RLMA_y RLMA_z] = extract_XYZ(RLMA);
+[RMMA_x RMMA_y RMMA_z] = extract_XYZ(RMMA);
+[RFH_x RFH_y RFH_z] = extract_XYZ(RFH);
+[RMP5_x RMP5_y RMP5_z] = extract_XYZ(RMP5);
 [R2M_x R2M_y R2M_z] = extract_XYZ(R2M);
-[ACB_x ACB_y ACB_z] = extract_XYZ(ACB);
-[T1_x T1_y T1_z] = extract_XYZ(T1);
-[RDS_x RDS_y RDS_z] = extract_XYZ(RDS);
-[RAC_x RAC_y RAC_z] = extract_XYZ(RAC);
-[Centroid_x Centroid_y Centroid_z] = extract_XYZ(Centroid);
+[RCAL_x RCAL_y RCAL_z] = extract_XYZ(RCAL);
+[RISC_x RISC_y RISC_z] = extract_XYZ(RISC);
+[CRS_x CRS_y CRS_z] = extract_XYZ(CRS);
+[RIWG_x RIWG_y RIWG_z] = extract_XYZ(RIWG);
 
 
-%Establish Joint Coordinate System for BRACHIUM and ANTIBRACHIUM or ELBOW
-
-for b = 1:size(RGT_x,2)
-    disp("iteration")
-    
+for b = 1:size(RGT_x,2)   
     %Local Coordinate System for PROXIMAL segment
   
     %z-axis
     
-    z_prox_num = [(RLE_x(:,b) - RME_x(:,b)) (RLE_y(:,b) - RME_y(:,b)) (RLE_z(:,b) - RME_z(:,b))];
+    z_prox_num = [(RLEP_x(:,b) - RMEP_x(:,b)) (RLEP_y(:,b) - RMEP_y(:,b)) (RLEP_z(:,b) - RMEP_z(:,b))];
     
     z_prox_denom = sqrt(z_prox_num(:,1).^2 + z_prox_num(:,2).^2 + z_prox_num(:,3).^2);
     
@@ -32,7 +27,7 @@ for b = 1:size(RGT_x,2)
     
     %x-axis
     
-    RGT_RLE = [(RGT_x(:,b) - RLE_x(:,b)) (RGT_y(:,b) - RLE_y(:,b)) (RGT_z(:,b) - RLE_z(:,b))];
+    RGT_RLE = [(RGT_x(:,b) - RLEP_x(:,b)) (RGT_y(:,b) - RLEP_y(:,b)) (RGT_z(:,b) - RLEP_z(:,b))];
     
     x_prox_num = cross(RGT_RLE,z_prox);
     
@@ -49,7 +44,7 @@ for b = 1:size(RGT_x,2)
     
     %z-axis
     
-    z_dist_num = [(RLS_x(:,b) - RMS_x(:,b)) (RLS_y(:,b) - RMS_y(:,b)) (RLS_z(:,b) - RMS_z(:,b))];
+    z_dist_num = [(RLMA_x(:,b) - RMMA_x(:,b)) (RLMA_y(:,b) - RMMA_y(:,b)) (RLMA_z(:,b) - RMMA_z(:,b))];
     
     z_dist_denom = sqrt(z_dist_num(:,1).^2 + z_dist_num(:,2).^2 + z_dist_num(:,3).^2);
     
@@ -57,9 +52,9 @@ for b = 1:size(RGT_x,2)
     
     %x-axis
     
-    RLO_RLS = [(RLO_x(:,b) - RLS_x(:,b)) (RLO_y(:,b) - RLS_y(:,b)) (RLO_z(:,b) - RLS_z(:,b))];
+    RFH_RLMA = [(RFH_x(:,b) - RLMA_x(:,b)) (RFH_y(:,b) - RLMA_y(:,b)) (RFH_z(:,b) - RLMA_z(:,b))];
     
-    x_dist_num = cross(RLO_RLS,z_dist);
+    x_dist_num = cross(RFH_RLMA,z_dist);
     
     x_dist_denom = sqrt(x_dist_num(:,1).^2 + x_dist_num(:,2).^2 + x_dist_num(:,3).^2);
     
@@ -71,15 +66,15 @@ for b = 1:size(RGT_x,2)
 
     %Setting up the Joint Coordinate System
     
-    FA = cross(z_prox,y_dist); %Calculates the floating axis
+    FA = cross(y_dist,z_prox); %Calculates the floating axis
     
-    alpha(:,b) = acosd(dot(FA,x_prox,2)); %Holds the flexion 
-    gamma(:,b) = acosd(dot(FA,x_dist,2)); %Holds internal/external rotation
+    alpha(:,b) = asind(dot(FA,y_prox,2)); %Holds the flexion 
+    gamma(:,b) = asind(dot(FA,z_dist,2)); %Holds internal/external rotation
     beta(:,b) = acosd(dot(z_prox,y_dist,2)); %Holds abduction angle
      
 end
 
-%Establish Joint Coordinate System for the ANTIBRACHIUM and PAW or CARPUS
+%Establish Joint Coordinate System for the ANTIBRACHIUM and PAW
 %Local Coordinate System for PROXIMAL segment
     
     %z-axis
@@ -98,7 +93,7 @@ end
     
     %z-axis
     
-    z_dist_2_num = [(R5M_x(:,b) - R2M_x(:,b)) (R5M_y(:,b) - R2M_y(:,b)) (R5M_z(:,b) - R2M_z(:,b))];
+    z_dist_2_num = [(RMP5_x(:,b) - R2M_x(:,b)) (RMP5_y(:,b) - R2M_y(:,b)) (RMP5_z(:,b) - R2M_z(:,b))];
     
     z_dist_2_denom = sqrt(z_dist_2_num(:,1).^2 + z_dist_2_num(:,2).^2 + z_dist_2_num(:,3).^2);
     
@@ -106,9 +101,9 @@ end
     
     %x-axis
     
-    RAC_R5M = [(ACB_x(:,b) - R5M_x(:,b)) (ACB_y(:,b) - R5M_y(:,b)) (ACB_z(:,b) - R5M_z(:,b))];
+    RCAL_R5M = [(RCAL_x(:,b) - RMP5_x(:,b)) (RCAL_y(:,b) - RMP5_y(:,b)) (RCAL_z(:,b) - RMP5_z(:,b))];
     
-    x_dist_2_num = cross(RAC_R5M,z_dist_2);
+    x_dist_2_num = cross(RCAL_R5M,z_dist_2);
     
     x_dist_2_denom = sqrt(x_dist_2_num(:,1).^2 + x_dist_2_num(:,2).^2 + x_dist_2_num(:,3).^2);
     
@@ -124,33 +119,30 @@ end
     
     %Range of Motion of Joint
     
-    alpha_2(:,b) = asind(dot(-FA_2,y_prox_2,2)); %Holds the flexion 
-    gamma_2(:,b) = acosd(dot(FA_2,x_dist_2,2)); %Holds internal/external rotation
+    alpha_2(:,b) = asind(dot(FA_2,y_prox_2,2)); %Holds the flexion 
+    gamma_2(:,b) = asind(dot(FA_2,z_dist_2,2)); %Holds internal/external rotation
     beta_2(:,b) = acosd(dot(z_prox_2,y_dist_2,2)); %Holds abduction angle
     
 
 % Not all segments have the same length for some reason which is causing
 % prox_x from the BA to have an irregular length
-
-%Establish Joint Coordinate System for BRACHIUM and SCAPULA or SHOULDER
+%Establish Joint Coordinate System for BRACHIUM and SCAPULA
     
 %Local Coordinate System for PROXIMAL segment
-%What happened to using Centroid?
   
 %z-axis
 
-z_prox_3_num = [(T1_x(:,b)- Centroid_x(:,b)) (T1_y(:,b) - Centroid_y(:,b)) (T1_z(:,b) - Centroid_z(:,b))];
+z_prox_3_num = [(RIWG_x(:,b) - RISC_x(:,b)) (RIWG_y(:,b) - RISC_y(:,b)) (RIWG_z(:,b) - RISC_z(:,b))];
     
 z_prox_3_denom = sqrt(z_prox_3_num(:,1).^2 + z_prox_3_num(:,2).^2 + z_prox_3_num(:,3).^2);
     
 z_prox_3 = z_prox_3_num./z_prox_3_denom;
     
 %x-axis
-%Put back RDS_T1
     
-Centroid_RDS = [(RDS_x(:,b) - Centroid_x(:,b)) (RDS_y(:,b) - Centroid_y(:,b)) (RDS_z(:,b) - Centroid_z(:,b))];
+CRS_RISC = [(CRS_x(:,b) - RISC_x(:,b)) (CRS_y(:,b) - RISC_y(:,b)) (CRS_z(:,b) - RISC_z(:,b))];
     
-    x_prox_3_num = cross(Centroid_RDS,z_prox_3);
+    x_prox_3_num = cross(CRS_RISC,z_prox_3);
     
     x_prox_3_denom = sqrt(x_prox_3_num(:,1).^2 + x_prox_3_num(:,2).^2 + x_prox_3_num(:,3).^2);
     
@@ -181,8 +173,8 @@ Centroid_RDS = [(RDS_x(:,b) - Centroid_x(:,b)) (RDS_y(:,b) - Centroid_y(:,b)) (R
     
     %Range of Motion of joint
       
-    alpha_3(:,b) = acosd(dot(FA_3,x_prox_3,2)); %Holds the flexion 
-    gamma_3(:,b) = acosd(dot(FA_3,x_dist_3,2)); %Holds internal/external rotation
+    alpha_3(:,b) = asind(dot(FA_3,y_prox_3,2)); %Holds the flexion 
+    gamma_3(:,b) = asind(dot(FA_3,z_dist_3,2)); %Holds internal/external rotation
     beta_3(:,b) = acosd(dot(z_prox_3,y_dist_3,2)); %Holds abduction angle
     
     
@@ -201,4 +193,6 @@ BA_a = beta(:,g2);
 AP_a = beta_2(:,g2);
 BS_a = beta_3(:,g2);
 
+
 end
+

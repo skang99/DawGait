@@ -1,25 +1,6 @@
 function [BA_f,BA_r,BA_a,AP_f,AP_r,AP_a,BS_f,BS_r,BS_a,new_time,R_5th_M_z,frames,no_good_cycles,gait_cycle_count] = JointCoordinates(dynamic_trial,static_trial)
 
-try
-[sR5M,sRGT,sRLE,sRLO,sRLS,sT1,sRDS,sCentroid,time,sRME,sRMS,sRTR,sRCR,sR2M,sACB,sRAC] = JCSextract(static_trial);
-catch exception
-    rethrow(exception)
-end
-
 load(['Produced Data/' dynamic_trial])
-
-[static_5th_M_x static_5th_M_y static_5th_M_z] = extract_XYZ(sR5M);
-[static_RLE_x static_RLE_y static_RLE_z] = extract_XYZ(sRLE);
-[static_Tri_x static_Tri_y static_Tri_z] = extract_XYZ(sRTR);
-[static_ME_x static_ME_y static_ME_z] = extract_XYZ(sRME);
-[static_RCR_x static_RCR_y static_RCR_z] = extract_XYZ(sRCR);
-[static_MS_x static_MS_y static_MS_z] = extract_XYZ(sRMS);
-[static_R_2_x static_R_2_y static_R_2_z] = extract_XYZ(sR2M);
-[static_T1_x static_T1_y static_T1_z] = extract_XYZ(sT1);
-[static_RAC_x static_RAC_y static_RAC_z] = extract_XYZ(sRAC);
-[static_Centroid_x static_Centroid_y static_Centroid_z] = extract_XYZ(sCentroid);
-[static_RDS_x static_RDS_y static_RDS_z] = extract_XYZ(sRDS);
-[static_ACB_x static_ACB_y static_ACB_z] = extract_XYZ(sACB);
 
 gait_cycle_count = length(trial.gait_cycles);
 
@@ -30,7 +11,7 @@ R5M = trial.pos_data.R5M;
 R2M = trial.pos_data.R2M;
 RLE = trial.pos_data.RLE;
 RTR = trial.pos_data.RTR;
-RME = trial.pos_data.RME;
+RME = trial.pos_data.RME
 RMS = trial.pos_data.RMS;
 RGT = trial.pos_data.RGT;
 RLO = trial.pos_data.RLO;
@@ -45,86 +26,6 @@ ACB = trial.pos_data.ACB;
 %allows for static and dynamic matrix dimensions to agree
 end_frame = length(trial.pos_data.R5M);
 
-static_RLE_x = mean(static_RLE_x);
-static_RLE_y = mean(static_RLE_y);
-static_RLE_z = mean(static_RLE_y);
-
-static_Tri_x = mean(static_Tri_x);
-static_Tri_y = mean(static_Tri_y);
-static_Tri_z = mean(static_Tri_z);
-
-static_ME_x = mean(static_ME_x);
-static_ME_y = mean(static_ME_y);
-static_ME_z = mean(static_ME_z);
-
-static_RCR_x = mean(static_RCR_x);
-static_RCR_y = mean(static_RCR_y);
-static_RCR_z = mean(static_RCR_z);
-
-static_MS_x = mean(static_MS_x);
-static_MS_y = mean(static_MS_y);
-static_MS_z = mean(static_MS_z);
-
-static_5th_M_x = mean(static_5th_M_x);
-static_5th_M_y = mean(static_5th_M_y);
-static_5th_M_z = mean(static_5th_M_z);
-
-static_R_2_x = mean(static_R_2_x);
-static_R_2_y = mean(static_R_2_y);
-static_R_2_z = mean(static_R_2_z);
-static_ACB_x = mean(static_ACB_x);
-static_ACB_y = mean(static_ACB_y);
-static_ACB_z = mean(static_ACB_z);
-
-%%
-
-%The following loop creates matrices of the x, y and z position data of the
-%Medial Epicondyle during the dynamics trials using their respective static data.
-RMS_x = [];
-RMS_y = [];
-RMS_z = [];
-
-R2M_x = [];
-R2M_y = [];
-R2M_z = [];
-
-[R_Tricep_x R_Tricep_y R_Tricep_z] = extract_XYZ(RTR);
-[RCR_x RCR_y RCR_z] = extract_XYZ(RCR);
-
-
-if(count_missing_frames(RME,20))
-    disp("RME missing data")
-    for k = 1:size(R5M_x)
-        RME_x(k) = R_Tricep_x(k) - static_Tri_x + static_ME_x;
-        RME_y(k) = R_Tricep_y(k) - static_Tri_y + static_ME_y;
-        RME_z(k) = R_Tricep_z(k) - static_Tri_z + static_ME_z;
-    end
-    
-    RME = [RME_x; RME_y; RME_z;]';
-end
-
-if(count_missing_frames(RMS,20))
-    disp("RMS missing data")
-    for k = 1:size(R5M_x)
-        RMS_x(k) = RCR_x(k) - static_RCR_x + static_MS_x;
-        RMS_y(k) = RCR_y(k) - static_RCR_y + static_MS_y;
-        RMS_z(k) = RCR_z(k) - static_RCR_z + static_MS_z;
-    end
-    
-    RMS = [RMS_x; RMS_y; RMS_z;]';
-end
-
-if(count_missing_frames(R2M,20))
-    disp("RMP2 missing data")
-    for k = 1:size(R5M_x)
-        R2M_x(k) = R5M_x(k) - static_5th_M_x + static_R_2_x;
-        R2M_y(k) = R5M_y(k) - static_5th_M_y + static_R_2_y;
-        R2M_z(k) = R5M_z(k) - static_5th_M_z + static_R_2_z;  
-    end
-    
-    R2M = [R2M_x; R2M_y; R2M_z]';
-end
-
 new_time = 1:end_frame;
 
 bm = [-1 -1 -1];
@@ -133,10 +34,7 @@ ps1 = 0;
 ps2 = 0;
 ps3 = 0;
 
-[BA_f BA_r BA_a BS_f BS_r BS_a AP_f AP_r AP_a] = create_angle_data(RLE,RME,RGT,RLS,RMS,RLO,R5M,R2M,ACB,T1,RDS,RAC);
-
-
-
+[BA_f BA_r BA_a BS_f BS_r BS_a AP_f AP_r AP_a] = create_angle_data(RLE,RME,RGT,RLS,RMS,RLO,R5M,R2M,ACB,T1,RDS,RAC,Centroid);
 
 %Graphs the velocity of T1 during gc1
 
@@ -183,8 +81,8 @@ for i = 1:gait_cycle_count
 %     end
     
     
-    start_frame = trial.gait_cycles(i).start_frame
-    end_frame = trial.gait_cycles(i).end_frame - 1
+    start_frame = trial.gait_cycles(i).start_frame;
+    end_frame = trial.gait_cycles(i).end_frame - 1;
     gc_length = abs(start_frame - end_frame) + 1;
     
     if(trial.gait_cycles(i).RGT_RLE && trial.gait_cycles(i).RLO_RLS)
@@ -220,7 +118,7 @@ for i = 1:gait_cycle_count
     %shoulder
     if(trial.gait_cycles(i).RGT_RLE && trial.gait_cycles(i).RDS_Centroid && trial.gait_cycles(i).T1_Centroid)
         disp("Creating shoulder data for gc # " + i)
-        tBS_f = BS_f(start_frame:end_frame)
+        tBS_f = BS_f(start_frame:end_frame);
         tBS_r = BS_r(start_frame:end_frame);
         tBS_a = BS_a(start_frame:end_frame);
         nBS_f = [nBS_f; tBS_f]
@@ -243,7 +141,6 @@ for i = 1:length(trial.gait_cycles)
     frames(i+1) = trial.gait_cycles(i).end_frame;
 end
 
-%Look at what n and t are producing
 
 jc_angles = struct("trial_name",trial.trial_name,"angles",x,"ELB_f",nBA_f,"ELB_r",nBA_r,"ELB_a",nBA_a,"CARP_f",nAP_f,"CARP_r",nAP_r,"CARP_a",nAP_a,"SHLD_f",nBS_f,"SHLD_r",nBS_r,"SHLD_a",nBS_a);
 

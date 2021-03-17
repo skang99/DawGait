@@ -1,10 +1,7 @@
 function [landmark_coord,trimmed_coord,cycle_time,gait_cycles] = main(dynamic_trial,name,static_trial,error_length,override_arr,show_graphs,gc_override_arr,reconstruct_arr)
 
-tic
 %Frontlimb trial function
-tic
 [R5M,R2M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC,DLMC5,VTR1,SC1] = create_frontlimb_data(dynamic_trial);
-toc
 
 %Plots the position of the right 5th metacarpal during the dynamic trial
 % figure(1) 
@@ -89,11 +86,15 @@ if(reconstruct_arr(3) && count_missing_frames(RDS,20))
     [Centroid_x Centroid_y Centroid_z] = extract_XYZ(Centroid);
     [sCentroid_x sCentroid_y sCentroid_z] = extract_XYZ(sCentroid);
     
-    sCentroid_x = mean(sCentroid_x); sCentroid_y = mean(sCentroid_y); sCentroid_z = mean(sCentroid_z);
+    sCentroid_x = mean(sCentroid_x);
+    sCentroid_y = mean(sCentroid_y);
+    sCentroid_z = mean(sCentroid_z);
     
     [sRDS_x sRDS_y sRDS_z] = extract_XYZ(sRDS);
     
-    sRDS_x = mean(sRDS_x); sRDS_y = mean(sRDS_y); sRDS_z = mean(sRDS_z);
+    sRDS_x = mean(sRDS_x);
+    sRDS_y = mean(sRDS_y);
+    sRDS_z = mean(sRDS_z);
     
     for k = 1:length(R5M(:,1))
         RDS_x(k) = Centroid_x(k) - sCentroid_x + sRDS_x;
@@ -101,20 +102,23 @@ if(reconstruct_arr(3) && count_missing_frames(RDS,20))
         RDS_z(k) = Centroid_z(k) - sCentroid_z + sRDS_z;
     end
        
-    tempRDS = [RDS_x; RDS_y; RDS_z]';
+    tempRDS = [RDS_x; RDS_y; RDS_z]'; 
+    RDS = replace_marker_frames(RDS,tempRDS);
     
+    RDS = reconstruct_marker(Centroid,0,0);
 end
 
+
 if(reconstruct_arr(5) && ~isempty(DLMC5) && ~count_missing_frames(DLMC5,20))
-   ACB = reconstruct_marker(DLMC5,R5M,R2M,sDLMC5,sR5M,sR2M,sACB); 
+   ACB = reconstruct_marker(DLMC5,R5M,R2M,sDLMC5,sR5M,sR2M,sACB,3); 
 end
 
 if(reconstruct_arr(2) && count_missing_frames(RME,20))
-    RME = reconstruct_marker(RTR,RGT,RLE,sRTR,sRGT,sRLE,sRME);
+    RME = reconstruct_marker(RTR,RGT,RLE,sRTR,sRGT,sRLE,sRME,3);
 end
 
 if(reconstruct_arr(4) && count_missing_frames(RMS,20))
-    RMS = reconstruct_marker(RLS,RLO,RCR,sRLS,sRLO,sRCR,sRMS);
+    RMS = reconstruct_marker(RLS,RLO,RCR,sRLS,sRLO,sRCR,sRMS,3);
 end
 
 % %Plots the position of the right 5th metacarpal during the static trial
@@ -298,7 +302,6 @@ trial.pos_data.DLMC5 = DLMC5;
 trial.gait_cycles = x;
 
 save(['Produced Data/' name '.mat'],'trial')
-toc
 
 end
       

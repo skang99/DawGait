@@ -1,4 +1,4 @@
-function [static_RGT_RLE,static_RLO_RLS,static_RDS_Centroid,static_T1_Centroid,static_ACB_R5M,T1,VTR1,SC1,DLMC5,ACB,RDS] = create_static_data(static_trial,new_new_time,time)
+function [static_RGT_RLE,static_RLO_RLS,static_RDS_Centroid,static_T1_Centroid,static_ACB_R5M,T1,VTR1,SC1,DLMC5,ACB,RDS,RTR,RME,RCR,R5M,R2M,RMS,RGT,RLE,Centroid] = create_static_data(static_trial,new_new_time,time)
 
 try 
 [static_data,static_coords] = xlsread(static_trial); %import excel data numeric and text
@@ -13,13 +13,15 @@ static_pos_data = static_data(6:length(static_data),:); %Extract only the numeri
 RGT = double(subs(extract_data(static_pos_data,static_coords,'GRTB'),NaN,0));
 RLE = double(subs(extract_data(static_pos_data,static_coords,'LEPI'),NaN,0));
 R5M = double(subs(extract_data(static_pos_data,static_coords,'MCP5'),NaN,0));
-ACB = double(subs(extract_data(static_pos_data,static_coords,'ACCB'),NaN,0));
+R2M = double(subs(extract_data(static_pos_data,static_coords,'MCP2'),NaN,0));
 RLO = double(subs(extract_data(static_pos_data,static_coords,'OLEC'),NaN,0));
 RLS = double(subs(extract_data(static_pos_data,static_coords,'LSTY'),NaN,0));
 T1 = double(subs(extract_data(static_pos_data,static_coords,'T1'),NaN,0));
 RDS = double(subs(extract_data(static_pos_data,static_coords,'DRSC'),NaN,0));
 RME = double(subs(extract_data(static_pos_data,static_coords,'MEPI'),NaN,0));
 RTR = double(subs(extract_data(static_pos_data,static_coords,'TRIC'),NaN,0));
+RCR = double(subs(extract_data(static_pos_data,static_coords,'MDCR'),NaN,0));
+RMS = double(subs(extract_data(static_pos_data,static_coords,'MSTY'),NaN,0));
 
 RAC = double(subs(extract_data(static_pos_data,static_coords,'ACRM'),NaN,0));
 RSC1 = double(subs(extract_data(static_pos_data,static_coords,'SC1'),NaN,0));
