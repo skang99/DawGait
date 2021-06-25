@@ -11,7 +11,7 @@ R5M = trial.pos_data.R5M;
 R2M = trial.pos_data.R2M;
 RLE = trial.pos_data.RLE;
 RTR = trial.pos_data.RTR;
-RME = trial.pos_data.RME
+RME = trial.pos_data.RME;
 RMS = trial.pos_data.RMS;
 RGT = trial.pos_data.RGT;
 RLO = trial.pos_data.RLO;
@@ -121,7 +121,7 @@ for i = 1:gait_cycle_count
         tBS_f = BS_f(start_frame:end_frame);
         tBS_r = BS_r(start_frame:end_frame);
         tBS_a = BS_a(start_frame:end_frame);
-        nBS_f = [nBS_f; tBS_f]
+        nBS_f = [nBS_f; tBS_f];
         nBS_r = [nBS_r; tBS_r];
         nBS_a = [nBS_a; tBS_a];
     else

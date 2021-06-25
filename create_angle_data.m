@@ -18,8 +18,7 @@ function [BA_f BA_r BA_a BS_f BS_r BS_a AP_f AP_r AP_a] = create_angle_data(RLE,
 %Establish Joint Coordinate System for BRACHIUM and ANTIBRACHIUM or ELBOW
 
 for b = 1:size(RGT_x,2)
-    disp("iteration")
-    
+  
     %Local Coordinate System for PROXIMAL segment
   
     %z-axis

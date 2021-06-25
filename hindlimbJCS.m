@@ -1,32 +1,40 @@
 function [BA_f,BA_r,BA_a,AP_f,AP_r,AP_a,BS_f,BS_r,BS_a,new_time,R_5th_M_z,frames,no_good_cycles,gait_cycle_count] = hindlimbJCS(dynamic_trial,static_trial)
+
 load(['Produced Data/' dynamic_trial])
 
 gait_cycle_count = length(trial.gait_cycles);
 
 no_good_cycles = 0;
 
-RMP5 = trial.pos_data.RMP5;
-[R5M_x R5M_y R5M_z] = extract_XYZ(RMP5);
+MP5 = trial.pos_data.MP5;
+[M5_x M5_y M5_z] = extract_XYZ(MP5);
 
-RMP2 = trial.pos_data.RMP2;
-RLEP = trial.pos_data.RLEP;
-RQUA = trial.pos_data.RQUA;
-RMEP = trial.pos_data.RMEP;
-RMMA = trial.pos_data.RMMA;
-RGT = trial.pos_data.RGT;
-RFH = trial.pos_data.RFH;
-RLMA = trial.pos_data.RLMA;
+MP2 = trial.pos_data.MP2;
+LEP = trial.pos_data.LEP;
+QUA = trial.pos_data.QUA;
+MEP = trial.pos_data.MEP;
+MMA = trial.pos_data.MMA;
+GT = trial.pos_data.GT;
+FH = trial.pos_data.FH;
+LMA = trial.pos_data.LMA;
 CRS = trial.pos_data.CRS;
-RIWG = trial.pos_data.RIWG;
-RGAS = trial.pos_data.RGAS;
-RCAL = trial.pos_data.RCAL;
-RISC = trial.pos_data.RISC;
+IWG = trial.pos_data.IWG;
+GAS = trial.pos_data.GAS;
+CAL = trial.pos_data.CAL;
+ISC = trial.pos_data.ISC;
 
-end_frame = length(trial.pos_data.RMP5);
+direction = 1;
+
+if(strcmp(trial.direction,"left"))
+    direction = -1;
+end
+
+
+end_frame = length(trial.pos_data.MP5);
 
 new_time = 1:end_frame;
 
-[BA_f BA_r BA_a BS_f BS_r BS_a AP_f AP_r AP_a] = create_hindlimb_angle_data(RLEP,RMEP,RGT,RLMA,RMMA,RFH,RMP5,RMP2,RCAL,RISC,CRS,RIWG);
+[BA_f BA_r BA_a BS_f BS_r BS_a AP_f AP_r AP_a] = create_hindlimb_angle_data(LEP,MEP,GT,LMA,MMA,FH,MP5,MP2,CAL,ISC,CRS,IWG,direction);
 
 
 %Graphs the velocity of T1 during gc1
@@ -78,7 +86,7 @@ for i = 1:gait_cycle_count
     end_frame = trial.gait_cycles(i).end_frame;
     gc_length = abs(start_frame - end_frame) + 1;
     
-    if(trial.gait_cycles(i).RGT_RLEP && trial.gait_cycles(i).RFH_RLMA)
+    if(trial.gait_cycles(i).GT_LEP && trial.gait_cycles(i).FH_LMA)
         disp("Creating knee data for gc # " + i)
         tBA_f = BA_f(start_frame:end_frame);
         tBA_r = BA_r(start_frame:end_frame);
@@ -92,7 +100,7 @@ for i = 1:gait_cycle_count
         tBA_a = zeros(gc_length,1) + -1;
     end
     
-    if(trial.gait_cycles(i).RCAL_RMP5 && trial.gait_cycles(i).RFH_RLMA)
+    if(trial.gait_cycles(i).CAL_MP5 && trial.gait_cycles(i).FH_LMA)
         disp("Creating ankle data for gc # " + i)
         tAP_f = AP_f(start_frame:end_frame);
         tAP_r = AP_r(start_frame:end_frame);
@@ -106,7 +114,7 @@ for i = 1:gait_cycle_count
         tAP_a = zeros(gc_length,1) + -1;
     end 
     
-    if(trial.gait_cycles(i).RGT_RLEP && trial.gait_cycles(i).RIWG_RISC && trial.gait_cycles(i).CRS_RISC)
+    if(trial.gait_cycles(i).GT_LEP && trial.gait_cycles(i).IWG_ISC && trial.gait_cycles(i).CRS_ISC)
         disp("Creating hip data for gc # " + i)
         tBS_f = BS_f(start_frame:end_frame); 
         tBS_r = BS_r(start_frame:end_frame);
@@ -137,7 +145,7 @@ temp_name = char(trial.trial_name + " Angles");
 
 save(['Produced Data/' temp_name '.mat'],'jc_angles')
 
-R_5th_M_z = R5M_z;
+R_5th_M_z = M5_z;
 
 name = {trial.trial_name
         ''

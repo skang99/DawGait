@@ -7,7 +7,7 @@ means = zeros(1,floor(length(R_5th_M_z) / frames_per_second));
 second = 1;
 sum = 0;
 
-%Finds the average of the z-position for every one second, 100 frames, 
+%Finds the average of the z-position for every one second, 200 frames, 
 %and selects the smallest average to be the period in which the dog is
 %still
 
@@ -26,7 +26,6 @@ min_average = min(means);
 
 t_one = find(means == min_average);
 t_naught = t_one - 1;
-    
   
 end
 

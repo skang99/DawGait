@@ -1,7 +1,5 @@
 function [gc_is_good] = error_check(M1,M2,error_length,static_seg,start_frame,end_frame,t)
     
-
-    
     M1 = M1(start_frame:end_frame,:);
     M2 = M2(start_frame:end_frame,:);
     
@@ -10,12 +8,10 @@ function [gc_is_good] = error_check(M1,M2,error_length,static_seg,start_frame,en
 
     frame_errors = 15;
 
-    
      if(isnan(error_length))
          error_length = 50;
      end
-    
-        
+      
     error_count = 0;
     is_good = 1;
 

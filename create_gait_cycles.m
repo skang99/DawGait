@@ -7,8 +7,6 @@ function [R5M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC,DLMC5
 %Reads the xls file and extracts position data and marker designations
 %Surrounded by a try-catch block to handle potential errors
 
-disp(filename)
-
 try 
     [kinematic_data,markers] = xlsread(filename);
 catch exception

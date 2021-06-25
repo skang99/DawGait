@@ -7,8 +7,6 @@ function [datacoord] = extract_data(data,markers,anatLandmark)
 %New system
 label = strfind(markers(3,:),anatLandmark);
 
-% label = strfind(marker(4,:),anatLandmark);
-
 datapos = find(~cellfun(@isempty,label),1); %#ok<STRCLFH>
 
 datax = data(:,datapos);
