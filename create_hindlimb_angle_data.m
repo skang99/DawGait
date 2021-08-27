@@ -1,4 +1,4 @@
-function [BA_f BA_r BA_a BS_f BS_r BS_a AP_f AP_r AP_a] = create_hindlimb_angle_data(RLEP,RMEP,RGT,RLMA,RMMA,RFH,RMP5,R2M,RCAL,RISC,CRS,RIWG,direction)
+function [BA_f BA_r BA_a BS_f BS_r BS_a AP_f AP_r AP_a] = create_hindlimb_angle_data(RLEP,RMEP,RGT,RLMA,RMMA,RFH,RMP5,R2M,RCAL,RISC,CRS,RIWG,side)
 
 [RLEP_x RLEP_y RLEP_z] = extract_XYZ(RLEP);
 [RMEP_x RMEP_y RMEP_z] = extract_XYZ(RMEP);
@@ -25,7 +25,7 @@ for b = 1:size(RGT_x,2)
     
     z_prox = z_prox_num./z_prox_denom;
     
-    z_prox = z_prox * direction;
+    z_prox = z_prox * side;
     
     %x-axis
     
@@ -52,7 +52,7 @@ for b = 1:size(RGT_x,2)
     
     z_dist = z_dist_num./z_dist_denom;
     
-    z_dist = z_dist * direction;
+    z_dist = z_dist * side;
     
     %x-axis
     
@@ -103,7 +103,7 @@ end
     
     z_dist_2 = z_dist_2_num./z_dist_2_denom;
     
-    z_dist_2 = z_dist_2 * direction;
+    z_dist_2 = z_dist_2 * side;
     
     %x-axis
     
@@ -144,7 +144,7 @@ z_prox_3_denom = sqrt(z_prox_3_num(:,1).^2 + z_prox_3_num(:,2).^2 + z_prox_3_num
     
 z_prox_3 = z_prox_3_num./z_prox_3_denom;
 
-z_prox_3 = z_prox_3 * direction;
+z_prox_3 = z_prox_3 * side;
     
 %x-axis
     

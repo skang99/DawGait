@@ -23,18 +23,17 @@ GAS = trial.pos_data.GAS;
 CAL = trial.pos_data.CAL;
 ISC = trial.pos_data.ISC;
 
-direction = 1;
+side = 1;
 
-if(strcmp(trial.direction,"left"))
-    direction = -1;
+if(strcmp(trial.side,"left"))
+    side = -1;
 end
-
 
 end_frame = length(trial.pos_data.MP5);
 
 new_time = 1:end_frame;
 
-[BA_f BA_r BA_a BS_f BS_r BS_a AP_f AP_r AP_a] = create_hindlimb_angle_data(LEP,MEP,GT,LMA,MMA,FH,MP5,MP2,CAL,ISC,CRS,IWG,direction);
+[BA_f BA_r BA_a BS_f BS_r BS_a AP_f AP_r AP_a] = create_hindlimb_angle_data(LEP,MEP,GT,LMA,MMA,FH,MP5,MP2,CAL,ISC,CRS,IWG,side);
 
 
 %Graphs the velocity of T1 during gc1
@@ -114,7 +113,7 @@ for i = 1:gait_cycle_count
         tAP_a = zeros(gc_length,1) + -1;
     end 
     
-    if(trial.gait_cycles(i).GT_LEP && trial.gait_cycles(i).IWG_ISC && trial.gait_cycles(i).CRS_ISC)
+    if(trial.gait_cycles(i).GT_LEP && trial.gait_cycles(i).IWG_ISC)
         disp("Creating hip data for gc # " + i)
         tBS_f = BS_f(start_frame:end_frame); 
         tBS_r = BS_r(start_frame:end_frame);

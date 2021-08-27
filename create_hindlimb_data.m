@@ -1,4 +1,4 @@
-function [RMP5,RMP2,RGT,RLEP,RFH,RLMA,CRS,RIWG,time,RMEP,RMMA,RQUA,RGAS,RCAL,RISC,CGT,PTC,direction] = create_hindlimb_cycles(filename)
+function [RMP5,RMP2,RGT,RLEP,RFH,RLMA,CRS,RIWG,time,RMEP,RMMA,RQUA,RGAS,RCAL,RISC,CGT,PTC,side] = create_hindlimb_cycles(filename)
 %This function takes an xls file and creates graphical
 %representations of the data input. 
 %filename: name of the xlsx file to read data from
@@ -18,9 +18,9 @@ end
 
 % Addresses 3rd column, 3rd row of spreadsheet
 if(cell2mat(strfind(markers(3,3),"LIWG")))
-    direction = "left";
+    side = "left";
 else
-    direction = "right";
+    side = "right";
 end
     
 

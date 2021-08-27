@@ -2,7 +2,6 @@ function [missing_n_data] = check_missing_frames(marker_pos,n)
 % Returns whether marker_pos has a consecutive n amount of frames missing
 blank_frame = 0;
 
-% Trivial return if the marker is empty or contains all 0s
 if(isempty(marker_pos) || all(marker_pos(:)==0))
     missing_n_data = 1;
     return

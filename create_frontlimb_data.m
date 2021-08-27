@@ -1,4 +1,4 @@
-function [R5M,R2M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC,DLMC5,VTR1,RSC1] = create_frontlimb_data(filename)
+function [R5M,R2M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC,DLMC5,VTR1,VTR2,VTR3,RSC1,RCDS] = create_frontlimb_data(filename)
 %This function takes an xls file and creates graphical
 %representations of the data input. 
 %filename: name of the xlsx file to read data from
@@ -47,6 +47,9 @@ RAC = double(subs(extract_data(position_data,markers,'ACRM'),NaN,0));
 DLMC5 = double(subs(extract_data(position_data,markers,'DLMC5'),NaN,0));
 
 VTR1 = double(subs(extract_data(position_data,markers,'VTR1'),NaN,0));
+VTR2 = double(subs(extract_data(position_data,markers,'VT2'),NaN,0));
+VTR3 = double(subs(extract_data(position_data,markers,'TV3'),NaN,0));
+RCDS = double(subs(extract_data(position_data,markers,'CDSC'),NaN,0));
 
 
 Centroid = (RAC + RSC1 + RSC2) * (1/3);

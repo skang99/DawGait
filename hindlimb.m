@@ -1,6 +1,7 @@
 function [landmark_coord,trimmed_coord,cycle_time,gait_cycles] = hindlimb(dynamic_trial,name,static_trial,error_length,override_arr,show_graphs,gc_override_array,reconstruct_arr,dir_adjust,show_reconst_graphs)
 
-[MP5,MP2,GT,LEP,FH,LMA,CRS,IWG,time,MEP,MMA,QUA,GAS,CAL,ISC,CGT,PTC,direction] = create_hindlimb_data(dynamic_trial);
+
+[MP5,MP2,GT,LEP,FH,LMA,CRS,IWG,time,MEP,MMA,QUA,GAS,CAL,ISC,CGT,PTC,side] = create_hindlimb_data(dynamic_trial);
 cycle_time = time * 200;
 
 R_5th_M_z = MP5(:,3);
@@ -11,8 +12,7 @@ landmark_coord = R_5th_M_z;
 R_5th_M_z = R_5th_M_z(cyc_start:cyc_end);
 
 
-
-MP5 = MP5(cyc_start:cyc_end,:);
+MP5 = MP5(cyc_start:cyc_end,:); 
 MP2 = MP2(cyc_start:cyc_end,:);
 GT = GT(cyc_start:cyc_end,:);
 LEP = LEP(cyc_start:cyc_end,:);
@@ -113,7 +113,6 @@ PTC = PTC(gc(1):gc(length(gc)),:);
 [CAL_x, CAL_y, CAL_z] = extract_XYZ(CAL);
 
 new_new_time = time(1:length(MP5(:,3)));
-
 
 %Readjusts GC locations to begin at frame #1 and end at cyc_end
 if(gc(1) ~= 1)  
@@ -621,7 +620,7 @@ for n = 1:gait_cycle_count
     start_frame = gc(n);
     end_frame = gc(n+1);
     
-    segment_error_checks = struct("GT_LEP","FH_LMA","IWG_ISC","CRS_ISC","CAL_MP5",0);
+    segment_error_checks = struct("GT_LEP","FH_LMA","IWG_ISC",0,"CAL_MP5",0);
     
     segment_error_checks.GT_LEP = error_check(GT,LEP,error_length,static_GT_LEP,start_frame,end_frame,1);
     
@@ -643,34 +642,28 @@ for n = 1:gait_cycle_count
     if(override_arr(oc + 2))
         segment_error_checks.IWG_ISC = ~segment_error_checks.IWG_ISC;
     end
-
-    segment_error_checks.CRS_ISC = error_check(CRS,ISC,error_length,static_CRS_ISC,start_frame,end_frame,0);
-    
-    % CRS_ISC
-    if(override_arr(oc + 3))    
-        segment_error_checks.CRS_ISC = ~segment_error_checks.CRS_ISC;
-    end
-    
+   
     segment_error_checks.CAL_MP5 = error_check(CAL,MP5,error_length,static_CAL_MP5,start_frame,end_frame,0);
 
     % CAL_MP5
-    if(override_arr(oc + 4))  
+    if(override_arr(oc + 3))  
         segment_error_checks.CAL_MP5 = ~segment_error_checks.CAL_MP5;
     end
     
     gait_cycles(n) = struct("start_frame",start_frame,"end_frame",end_frame,"seg_checks",segment_error_checks);
     
-    oc = oc + 5;
- end
+    oc = oc + 4;
+end
 
 if(show_graphs) 
     GT_rle = lengthPlotter(static_GT_LEP,GT,LEP);
 
     new_new_time = 1:length(GT_rle);
+    
     %Plots the position of the right 5th metacarpal in one or more complete
     %gait cycles
     figure(16)
-    plot(new_new_time,R_5th_M_z)
+    plot(new_new_time,MP5_z)
     xlabel('time(s)')
     ylabel('position(mm)')
     title('Gait Cycles')
@@ -684,9 +677,9 @@ if(show_graphs)
     ylabel('length(mm)')
     title('Length of GT/LEP Static and Dynamic Segments vs Time')
 
-    rlo_rls = lengthPlotter(static_FH_LMA,FH,LMA);
+    fh_rlma = lengthPlotter(static_FH_LMA,FH,LMA);
     figure(18)
-    plot(new_new_time,rlo_rls)
+    plot(new_new_time,fh_rlma)
     hold on;
     yline(static_FH_LMA);
     hold off;
@@ -703,16 +696,6 @@ if(show_graphs)
     xlabel('frames')
     ylabel('length(mm)')
     title('Length of IWG/Cent Static and Dynamic Segments vs Time')
-
-    t1_cent = lengthPlotter(static_CRS_ISC,CRS,ISC);
-    figure(20)
-    plot(new_new_time,t1_cent)
-    hold on;
-    yline(static_CRS_ISC);
-    hold off;
-    xlabel('frames')
-    ylabel('length(mm)')
-    title('Length of CRS/Cent Static and Dynamic Segments vs Time')
 
     acb_r5m = lengthPlotter(static_CAL_MP5,CAL,MP5);
     figure(21)
@@ -731,10 +714,11 @@ for i = 1:gait_cycle_count
 end
 
 trial = struct("trial_name",-1,"gait_cycles",-1);
+name
 
 name = extractBetween(name,1,length(name)-4);
 name = char(name);
-trial.direction = direction;
+trial.side = side;
 trial.trial_name = name;
 
 
@@ -766,7 +750,7 @@ for i = 1:length(gait_cycles)
     "FH", tFH, "LMA", tLMA, "CRS", tCRS, "IWG", tIWG, "ISC", tISC, "MEP", tMEP, ...
     "QUA", tQUA, "MMA", tMMA,"start_frame", start_frame, "end_frame",end_frame, ...
     "GT_LEP", gait_cycles(i).seg_checks.GT_LEP, "FH_LMA", gait_cycles(i).seg_checks.FH_LMA, ...
-    "IWG_ISC", gait_cycles(i).seg_checks.IWG_ISC, "CRS_ISC", gait_cycles(i).seg_checks.CRS_ISC, ...
+    "IWG_ISC", gait_cycles(i).seg_checks.IWG_ISC, ...
     "CAL_MP5",gait_cycles(i).seg_checks.CAL_MP5);
 end
 
