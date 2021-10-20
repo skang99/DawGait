@@ -1,6 +1,8 @@
 function [t_naught,t_one] = find_still_static(R_5th_M_z)
 % Finds the period of time in which the dog is the most still during
-% the static trial.
+% the static trial
+% This function is currently unused: the stillest period can usually be assumed to be the 
+% first 100 frames of a trial, but relies on the leading static readings being non-zero
 
 frames_per_second = 200;
 means = zeros(1,floor(length(R_5th_M_z) / frames_per_second));

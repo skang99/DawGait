@@ -1,8 +1,6 @@
 function [landmark_coord,trimmed_coord,cycle_time,gait_cycles] = main(dynamic_trial,name,static_trial,error_length,override_arr,show_graphs,gc_override_arr,reconstruct_arr,dir_adjust,show_reconst_graphs)
 
-override_arr
-
-
+tic
 %Frontlimb trial function
 [R5M,R2M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC,DLMC5,VTR1,VTR2,VTR3,RSC1,RCDS] = create_frontlimb_data(dynamic_trial);
 
@@ -49,7 +47,7 @@ if(gait_cycle_count == 0)
 end
 
 try
-    [static_RGT_RLE,static_RLO_RLS,static_RDS_Centroid,static_RDS_RAC,static_ACB_R5M,sT1,sVTR1,sSC1,sDLMC5,sACB,sRDS,sRTR,sRME,sRCR,sR5M,sR2M,sRMS,sRGT,sRLE,sCentroid,sRLS,sRLO,sVTR2,sVTR3,sRCDS] = create_static_data(static_trial);
+    [static_RGT_RLE,static_RLO_RLS,static_RSC1_RAC,static_RDS_RAC,static_ACB_R5M,sT1,sVTR1,sSC1,sDLMC5,sACB,sRDS,sRTR,sRME,sRCR,sR5M,sR2M,sRMS,sRGT,sRLE,sCentroid,sRLS,sRLO,sVTR2,sVTR3,sRCDS] = create_static_data(static_trial);
 catch exception  
     disp(getReport(exception))
 end
@@ -96,13 +94,9 @@ new_new_time = time(1:length(R5M(:,3)));
 [VTR2_x, VTR2_y, VTR2_z] = extract_XYZ(VTR2);
 
 if(isempty(VTR3))
-    VTR3 = zeros(length(R5M_x),3);
-end
-
-if(isempty(sVTR3))
+    VTR3 = zeros(length(R5M_x),3);   
     sVTR3 = zeros(length(R5M_x),3);
 end
-
 
 [VTR3_x, VTR3_y, VTR3_z] = extract_XYZ(VTR3);
 [RCDS_x, RCDS_y, RCDS_z] = extract_XYZ(RCDS);
@@ -206,6 +200,7 @@ end
 %RDS
 if(reconstruct_arr(3))
     org_RDS = RDS;
+    RDS = [];
     
     [sCentroid_x, sCentroid_y, sCentroid_z] = extract_XYZ(sCentroid);
     sCentroid_x = mean(sCentroid_x); sCentroid_y = mean(sCentroid_y); sCentroid_z = mean(sCentroid_z); 
@@ -264,7 +259,7 @@ if(reconstruct_arr(2))
     sRME_x = mean(sRME_x); sRME_y = mean(sRME_y); sRME_z = mean(sRME_z);
     
     for i = 1:gait_cycle_count
-        marker_count = count_good_markers(RTR(gc(i):gc(i+1)),RGT(gc(i):gc(i+1)),RLE(gc(i):gc(i+1)))
+        marker_count = count_good_markers(RTR(gc(i):gc(i+1)),RGT(gc(i):gc(i+1)),RLE(gc(i):gc(i+1)));
         
         if(marker_count == 0)
             RME = vertcat(RME,zeros(gc(i+1)-gc(i),3));
@@ -402,43 +397,7 @@ if(reconstruct_arr(4))
     end
 end
 
-if(show_reconst_graphs)
-    %T1
-%     if(reconstruct_arr(5))
-%         figure(16)
-%         plot(new_new_time,org_T1(:,1))
-%         hold on;
-%         plot(new_new_time,VTR1(:,1))
-%         plot(new_new_time,T1(:,1))
-%         hold off;
-%         xlabel('time(s)')
-%         ylabel('pos (mm)')
-%         title('x values of reconstructed T1 data')
-%         legend('original T1','VTR1''Reconstructed','Location','Northeast')
-% 
-%         figure(17)
-%         plot(new_new_time,org_T1(:,2))
-%         hold on;
-%         plot(new_new_time,VTR1(:,2))
-%         plot(new_new_time,T1(:,2))
-%         hold off;
-%         xlabel('time(s)')
-%         ylabel('pos (mm)')
-%         title('y values of reconstructed T1 data')
-%         legend('original T1','VTR1','Reconstructed','Location','Northeast')
-% 
-%         figure(18)
-%         plot(new_new_time,org_T1(:,3))
-%         hold on;
-%         plot(new_new_time,VTR1(:,3))
-%         plot(new_new_time,T1(:,3))
-%         hold off;
-%         xlabel('time(s)')
-%         ylabel('pos (mm)')
-%         title('z values of reconstructed T1 data')
-%         legend('original T1','VTR1','Reconstructed','Location','Northeast')
-%     end
-    
+if(show_reconst_graphs)   
     %RME
     if(reconstruct_arr(2))
         figure(1)
@@ -653,7 +612,7 @@ for n = 1:gait_cycle_count
    
     start_frame = gc(n);
     end_frame = gc(n+1);
-    segment_error_checks = struct("RGT_RLE","RLO_RLS","RDS_Centroid",0,"ACB_R5M",0);
+    segment_error_checks = struct("RGT_RLE",0,"RLO_RLS",0,"RSC1_RAC",0,"ACB_R5M",0);
     
     segment_error_checks.RGT_RLE = error_check(RGT,RLE,error_length,static_RGT_RLE,start_frame,end_frame,1);
     
@@ -667,18 +626,18 @@ for n = 1:gait_cycle_count
         segment_error_checks.RLO_RLS = ~segment_error_checks.RLO_RLS;
     end
     
-
-    segment_error_checks.RDS_Centroid = error_check(RDS,Centroid,error_length,static_RDS_Centroid,start_frame,end_frame,0);
+    segment_error_checks.RSC1_RAC = error_check(RSC1,RAC,error_length,static_RSC1_RAC,start_frame,end_frame,0);
     
     if(override_arr(oc + 2))
-        segment_error_checks.RDS_Centroid = ~segment_error_checks.RDS_Centroid;
+        segment_error_checks.RSC1_RAC = ~segment_error_checks.RSC1_RAC;
     end
+    
+    segment_error_checks.ACB_R5M = error_check(ACB,R5M,error_length,static_ACB_R5M,start_frame,end_frame);
 
-   
     if(override_arr(oc + 3))  
         segment_error_checks.ACB_R5M = ~segment_error_checks.ACB_R5M;
     end
-    
+          
     gait_cycles(n) = struct("start_frame",start_frame,"end_frame",end_frame,"seg_checks",segment_error_checks);
     
     oc = oc + 4;
@@ -686,17 +645,8 @@ end
 
 if(show_graphs) 
     rgt_rle = lengthPlotter(static_RGT_RLE,RGT,RLE);
-
     new_new_time = 1:length(rgt_rle);
-
-    %Plots the position of the right 5th metacarpal in one or more complete
-    %gait cycles
-    figure(7)
-    plot(new_new_time,R5M_z)
-    xlabel('time(s)')
-    ylabel('position(mm)')
-    title('Gait Cycles')
-
+    
     figure(8)
     plot(new_new_time,rgt_rle)
     hold on;
@@ -704,8 +654,9 @@ if(show_graphs)
     hold off;
     xlabel('frames')
     ylabel('length(mm)')
-    title('Length of RGT/RLE Static and Dynamic Segments vs Time')
-
+    title('Length of Static and Dynamic Humerus Segments vs Time')
+    legend('Dynamic segment','Static segment','Location','Northwest')
+   
     rlo_rls = lengthPlotter(static_RLO_RLS,RLO,RLS);
     figure(9)
     plot(new_new_time,rlo_rls)
@@ -714,27 +665,19 @@ if(show_graphs)
     hold off;
     xlabel('frames')
     ylabel('length(mm)')
-    title('Length of RLO/RLS Static and Dynamic Segments vs Time')
+    title('Length of Static and Dynamic Radius/Ulna Segments vs Time')
+    legend('Dynamic segment','Static segment','Location','Northwest')
 
-    rds_cent = lengthPlotter(static_RDS_Centroid,RDS,Centroid);
+    rds_cent = lengthPlotter(static_RSC1_RAC,RDS,Centroid);
     figure(10)
     plot(new_new_time,rds_cent)
     hold on;
-    yline(static_RDS_Centroid);
+    yline(static_RSC1_RAC);
     hold off;
     xlabel('frames')
     ylabel('length(mm)')
-    title('Length of RDS/Cent Static and Dynamic Segments vs Time')
-
-    rds_rac = lengthPlotter(static_RDS_RAC,RDS,RAC);
-    figure(11)
-    plot(new_new_time,rds_rac)
-    hold on;
-    yline(static_RDS_RAC);
-    hold off;
-    xlabel('frames')
-    ylabel('length(mm)')
-    title('Length of RDS/RAC Static and Dynamic Segments vs Time')
+    title('Length of Static and Dynamic Scalpula Segments vs Time')
+    legend('Dynamic segment','Static segment','Location','Northwest')
 
     acb_r5m = lengthPlotter(static_ACB_R5M,ACB,R5M);
     figure(12)
@@ -744,12 +687,8 @@ if(show_graphs)
     hold off;
     xlabel('frames')
     ylabel('length(mm)')
-    title('Length of ACB/R5M Static and Dynamic Segments vs Time')
-end
-
-for i = 1:gait_cycle_count
-    disp("GC #" + i)
-    disp(gait_cycles(i).seg_checks)
+    title('Length of Static and Dynamic Manus Segments vs Time')
+    legend('Dynamic segment','Static segment','Location','Northwest')
 end
 
 trial = struct("trial_name",-1,"gait_cycles",-1);
@@ -785,12 +724,13 @@ for i = 1:length(gait_cycles)
     tRTR = RTR(start_frame:end_frame,:);
     tRMS = RMS(start_frame:end_frame,:);
     tDLMC5 = DLMC5(start_frame:end_frame,:);
+    tACB = ACB(start_frame:end_frame,:);
     
     x(i) = struct("is_good",gc_is_good,"R5M", tR5M, "R2M", tR2M, "RGT", tRGT, "RLE", tRLE, ...
     "RLO", tRLO, "RLS", tRLS, "T1", tT1, "RDS", tRDS, "Centroid", tCentroid, "RME", tRME, ...
-    "RTR", tRTR, "RMS", tRMS, "DLMC5", tDLMC5, "start_frame", start_frame, "end_frame",end_frame, ...
+    "RTR", tRTR, "RMS", tRMS, "DLMC5", tDLMC5, "ACB", tACB, "start_frame", start_frame, "end_frame",end_frame, ...
     "RGT_RLE", gait_cycles(i).seg_checks.RGT_RLE, "RLO_RLS", gait_cycles(i).seg_checks.RLO_RLS, ...
-    "RDS_Centroid", gait_cycles(i).seg_checks.RDS_Centroid, ...
+    "RSC1_RAC", gait_cycles(i).seg_checks.RSC1_RAC, ...
     "ACB_R5M",gait_cycles(i).seg_checks.ACB_R5M);
 
 end
@@ -813,10 +753,13 @@ trial.pos_data.RAC = RAC;
 trial.pos_data.DLMC5 = DLMC5;
 trial.pos_data.RSC1 = RSC1;
 trial.pos_data.RCDS = RCDS;
+trial.pos_data.RSC1 = RSC1;
+trial.pos_data.RAC = RAC;
 
 trial.gait_cycles = x;
 
 save(['Produced Data/' name '.mat'],'trial')
+toc
 
 
 end

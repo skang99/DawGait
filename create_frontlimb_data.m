@@ -1,11 +1,9 @@
 function [R5M,R2M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC,DLMC5,VTR1,VTR2,VTR3,RSC1,RCDS] = create_frontlimb_data(filename)
-%This function takes an xls file and creates graphical
-%representations of the data input. 
-%filename: name of the xlsx file to read data from
-%RETURNS: vector of position data for each specified landmark
+% Extracts positional data from the xls file filename
+% Assumes xls files passed in are all similiarly formatted, namely,
+% that the row data begins in is row 6
 
-%Reads the xls file and extracts position data and marker designations
-%Surrounded by a try-catch block to handle potential errors
+ROW_START = 6;
 
 try 
     [kinematic_data,markers] = xlsread(filename);
@@ -16,11 +14,8 @@ catch exception
 end
 
 %Creates vectors for time and position data 
-position_data = kinematic_data(6:length(kinematic_data),:);
+position_data = kinematic_data(ROW_START:length(kinematic_data),:);
 time = position_data(:,1);
-
-% position_data = kinematic_data(7:length(kinematic_data),:);
-% time = position_data(:,2);
 
 time = time / 200;
 

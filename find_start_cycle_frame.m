@@ -1,11 +1,8 @@
-%returns the frames at which the gait cycle(s) begin and end
 function [cyc_start,cyc_end] = find_start_cycle_frame(marker_pos)
 
-
 % The purpose of this function is to find the frame at which the first gait
-% cycle begins by checking if local minima of a given landmark's position graph
-% are sufficiently low enough, ie, below an average position, to be
-% considered the beginning of the gait cycle.
+% cycle begins and the last gait cycle ends, defined by local minima
+% marker_pos may not be 0 or blank
 
 max_pos = max(marker_pos);
 min_pos = min(marker_pos);
@@ -18,16 +15,17 @@ max_data = max_data(max_data > avg_pos);
 
 first_min_pos = min_data(1);
 
-for j = 1:length(min_data) %starts loop to find the first suitable minimum
+for j = 1:length(min_data) 
     %In order for a min to be considered the start of a gait cycle, the min
     %must be less than the average of the position data and is defined as
     %the point where the dog's foot is on the ground
-    if (min_data(j) < avg_pos && abs(min_data(j) - avg_pos) > 0.035)  
+    
+    if (min_data(j) < avg_pos)  
         first_min_pos = min_data(j); %A z coordinate that will correspond to a frame number at which the beginning of the gait cycle start 
-        break; %breaks upon finding the first value
-        
-    end % end if statement
-end %ends loop
+        break;         
+    end % if
+    
+end %for
 
 first_min_loc = find(marker_pos == first_min_pos,1); %finds the frame for the corresponding minimum value in the Z-paw array
 
@@ -49,7 +47,6 @@ marker_pos(min_loc:end,:) = [];
 
 cyc_end = cyc_start+length(marker_pos);
     
-    
-
+   
 end
 

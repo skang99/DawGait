@@ -1,12 +1,9 @@
 function [RMP5,RMP2,RGT,RLEP,RFH,RLMA,CRS,RIWG,time,RMEP,RMMA,RQUA,RGAS,RCAL,RISC,CGT,PTC,side] = create_hindlimb_cycles(filename)
-%This function takes an xls file and creates graphical
-%representations of the data input. 
-%filename: name of the xlsx file to read data from
-%RETURNS: vector of position data for each specified landmark
+% Extracts positional data from the xls file filename
+% Assumes xls files passed in are all similiarly formatted, namely,
+% that the row data begins in is row 6
 
-%Reads the xls file and extracts position data and marker designations
-%Surrounded by a try-catch block to handle potential errors
-
+ROW_START = 6;
 
 try 
     [kinematic_data,markers] = xlsread(filename);
@@ -16,16 +13,16 @@ catch exception
     throw exception
 end
 
-% Addresses 3rd column, 3rd row of spreadsheet
+% Addresses 3rd column, 3rd row of spreadsheet (Cell C3)
 if(cell2mat(strfind(markers(3,3),"LIWG")))
-    side = "left";
+    side = -1; %left
 else
-    side = "right";
+    side = 1; %right
 end
     
 
 %Creates vectors for time and position data 
-position_data = kinematic_data(6:length(kinematic_data),:);
+position_data = kinematic_data(ROW_START:length(kinematic_data),:);
 time = position_data(:,1);
 
 time = time / 200;
@@ -49,9 +46,6 @@ RCAL = double(subs(extract_data(position_data,markers,'CAL'),NaN,0));
 CGT = double(subs(extract_data(position_data,markers,'CGT'),NaN,0));
 PTC = double(subs(extract_data(position_data,markers,'PTC'),NaN,0));
  
-
-
-
 
 end
 

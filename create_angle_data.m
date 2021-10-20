@@ -14,7 +14,6 @@ function [BA_f, BA_r, BA_a, BS_f, BS_r, BS_a, AP_f, AP_r, AP_a] = create_angle_d
 [RDS_x, RDS_y, RDS_z] = extract_XYZ(RDS);
 [RAC_x, RAC_y, RAC_z] = extract_XYZ(RAC);
 
-
 %Establish Joint Coordinate System for BRACHIUM and ANTIBRACHIUM or ELBOW
 
 for b = 1:size(RGT_x,2)
@@ -86,7 +85,7 @@ end
     z_prox_2 = z_dist; 
     
     %x-axis
-    
+   
     x_prox_2 = x_dist;
     
     %y-axis
@@ -175,9 +174,7 @@ x_prox_3_num = [(RDS_x(:,b)- RCDS_x(:,b)) (RDS_y(:,b) - RCDS_y(:,b)) (RDS_z(:,b)
     alpha_3(:,b) = acosd(dot(FA_3,x_prox_3,2)); %Holds the flexion 
     gamma_3(:,b) = asind(dot(FA_3,z_dist_3,2)); %Holds internal/external rotation
     beta_3(:,b) = acosd(dot(z_prox_3,y_dist_3,2)); %Holds abduction angle
-    
-    
-
+       
 g2 = 1; 
 
 BA_f = alpha(:,g2);

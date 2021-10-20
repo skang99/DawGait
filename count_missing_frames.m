@@ -12,7 +12,7 @@ for i=1:length(marker_pos(:,1))
         blank_frame = blank_frame + 1;
     else
         blank_frame = 0;
-    end
+    end %if
     
     if(blank_frame >= n)
         missing_n_data = 1;

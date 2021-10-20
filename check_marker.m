@@ -1,5 +1,5 @@
 function [is_good] = check_marker(marker)
-% Returns if marker is not missing 10 or more consecutive frames
+% Returns false if marker has >=10 consecutive frames missing, true otherwise
 
 if(check_missing_frames(marker,10))
     is_good = 0;

@@ -1,5 +1,12 @@
 function [static_RGT_RLEP,static_RFH_RLMA,static_RIWG_RISC,static_CRS_RISC,static_RCAL_RMP5,RGT,RLEP,RMP5,MP2,RFH,RLMA,CRS,RIWG,RMEP,RQUA,RGAS,RISC,RMMA,RCAL,DLMC5,CGT,PTC] = create_static_hindlimb_data(static_trial)
 
+% Extracts positional data from the xls file static_trial
+% Assumes xls files passed in are all similiarly formatted, namely,
+% that the row data begins in is row 6
+% static_trial should not containing leading blank/0 data
+
+ROW_START = 6;
+
 try 
 [static_data,static_coords] = xlsread(static_trial); %import excel data numeric and text
 catch exception
@@ -8,7 +15,7 @@ catch exception
 end
 
 %New system
-static_pos_data = static_data(6:length(static_data),:); %Extract only the numeric data a.k.a position readings
+static_pos_data = static_data(ROW_START:length(static_data),:); %Extract only the numeric data a.k.a position readings
 
 
 RGT = double(subs(extract_data(static_pos_data,static_coords,'GT'),NaN,0));
@@ -21,31 +28,20 @@ RIWG = double(subs(extract_data(static_pos_data,static_coords,'IWG'),NaN,0));
 RMEP = double(subs(extract_data(static_pos_data,static_coords,'MEP'),NaN,0));
 RQUA = double(subs(extract_data(static_pos_data,static_coords,'QUA'),NaN,0));
 RGAS = double(subs(extract_data(static_pos_data,static_coords,'GAS'),NaN,0));
-
 RISC = double(subs(extract_data(static_pos_data,static_coords,'ISC'),NaN,0));
-
-
 RMMA = double(subs(extract_data(static_pos_data,static_coords,'MMA'),NaN,0));
 RCAL = double(subs(extract_data(static_pos_data,static_coords,'CAL'),NaN,0));
 CGT =double(subs(extract_data(static_pos_data,static_coords,'CGT'),NaN,0));
 PTC = double(subs(extract_data(static_pos_data,static_coords,'PTC'),NaN,0));
-
 DLMC5 = double(subs(extract_data(static_pos_data,static_coords,'DLMC5'),NaN,0));
 MP2 = double(subs(extract_data(static_pos_data,static_coords,'MP2'),NaN,0));
 
+% Assumes the first 100 frames are when the static readings vary the least
 
-R_5th_M_z = RMP5(:,3);
+lower_lim =  1; 
+upper_lim =  100;
 
-[t_naught, t_one] = find_still_static(R_5th_M_z);
-
-
-% lower_lim =  %finds the frame where the lower limit time value is located
-% upper_lim = find(time == t_one) %finds the frame where the upper limit time value is located
-
-lower_lim =  1; %finds the frame where the lower limit time value is located
-upper_lim =  100;%finds the frame where the upper limit time value is located
-
-RGT = RGT(lower_lim: upper_lim,:); %extracts each frame of data within the specified range
+RGT = RGT(lower_lim: upper_lim,:); 
 RLEP = RLEP(lower_lim: upper_lim,:); 
 RMP5 = RMP5(lower_lim: upper_lim,:);
 RFH = RFH(lower_lim: upper_lim,:); 

@@ -1,10 +1,9 @@
 function [datacoord] = extract_data(data,markers,anatLandmark)
-%data: input numeric data extracted from the xls file
-%markers: Designations given to the anatomical markers, eg, Xyphoid, L.Ischium, etc.
-%anatLandmark: Label of the landmark recorded
-%RETURNS: An array of position data for the specified anatomical landmark
+% data: numeric data extracted from the xls file
+% markers: Designations given to the anatomical markers in the xls file
+% anatLandmark: Label of the landmark requested
+% Returns position data for the requested landmark in x,y,z columns
 
-%New system
 label = strfind(markers(3,:),anatLandmark);
 
 datapos = find(~cellfun(@isempty,label),1); %#ok<STRCLFH>

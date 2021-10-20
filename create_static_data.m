@@ -1,14 +1,21 @@
-function [static_RGT_RLE,static_RLO_RLS,static_RDS_Centroid,static_RDS_RAC,static_ACB_R5M,T1,VTR1,SC1,DLMC5,ACB,RDS,RTR,RME,RCR,R5M,R2M,RMS,RGT,RLE,Centroid,RLS,RLO,VTR2,VTR3,RCDS] = create_static_data(static_trial)
+function [static_RGT_RLE,static_RLO_RLS,static_RSC1_RAC,static_RDS_RAC,static_ACB_R5M,T1,VTR1,SC1,DLMC5,ACB,RDS,RTR,RME,RCR,R5M,R2M,RMS,RGT,RLE,Centroid,RLS,RLO,VTR2,VTR3,RCDS] = create_static_data(static_trial)
+
+% Extracts positional data from the xls file static_trial
+% Assumes xls files passed in are all similiarly formatted, namely,
+% that the row data begins in is row 6
+% static_trial should not containing leading blank/0 data
+
+ROW_START = 6;
 
 try 
-[static_data,static_coords] = xlsread(static_trial); %import excel data numeric and text
+[static_data,static_coords] = xlsread(static_trial); 
 catch exception
     disp("Error in opening the specified static Excel file. File may not exist or is not within the current directory.");
-    return;
+    return
 end
 
 %New system
-static_pos_data = static_data(6:length(static_data),:); %Extract only the numeric data a.k.a position readings
+static_pos_data = static_data(ROW_START:length(static_data),:); 
 
 RGT = double(subs(extract_data(static_pos_data,static_coords,'GRTB'),NaN,0));
 RLE = double(subs(extract_data(static_pos_data,static_coords,'LEPI'),NaN,0));
@@ -36,39 +43,13 @@ SC1 = double(subs(extract_data(static_pos_data,static_coords,'SC1'),NaN,0));
 DLMC5 = double(subs(extract_data(static_pos_data,static_coords,'DLMC5'),NaN,0));
 ACB = double(subs(extract_data(static_pos_data,static_coords,'ACCB'),NaN,0));
 
-
-% static_pos_data = static_data(7:length(static_data),:); %Extract only the numeric data a.k.a position readings
-%  
-% RGT = extract_data(static_pos_data,static_coords,'R Greater Tubercle');
-% RLE = extract_data(static_pos_data,static_coords,'R Lateral Epicondyle');
-% R5M = extract_data(static_pos_data,static_coords,'R 5th Metacarpal');
-% RLO = extract_data(static_pos_data,static_coords,'R Lateral Olecranon');
-% RLS = extract_data(static_pos_data,static_coords,'R Lateral Styloid');
-% T1 = extract_data(static_pos_data,static_coords,'T1');
-% RDS = extract_data(static_pos_data,static_coords,'R Dorsal Scapula');
-%  
-% RAC = extract_data(static_pos_data,static_coords,'R Acromion');
-% RSC1 = extract_data(static_pos_data,static_coords,'RSC1');
-% RSC2 = extract_data(static_pos_data,static_coords,'RSC2');
-% 
-% RME = extract_data(static_pos_data,static_coords,'R Medial Epicondyle');
-% RTR = extract_data(static_pos_data,static_coords,'R Tricep');
-% RMS = extract_data(static_pos_data,static_coords,'R Medial Styloid');
- 
 Centroid = (RAC + RSC1 + RSC2) / 3;
 
-R_5th_M_z = RGT(:,3);
+lower_lim =  1; 
+upper_lim =  100;
 
-[t_naught, t_one] = find_still_static(R_5th_M_z);
-
-%Current work around. Frame # starts at 15, 46, etc, but the start should
-%be t = 0, which this does not currently account for
-
-% lower_lim =  %finds the frame where the lower limit time value is located
-% upper_lim = find(time == t_one) %finds the frame where the upper limit time value is located
-
-lower_lim =  1; %finds the frame where the lower limit time value is located
-upper_lim =  100;%finds the frame where the upper limit time value is located
+% Assumes the first 100 frames are when the static readings vary the least
+% and that data is not blank
 
 T1 = T1(lower_lim: upper_lim,:);
 VTR1 = VTR1(lower_lim: upper_lim,:);
@@ -91,6 +72,7 @@ RLO = RLO(lower_lim: upper_lim,:);
 VTR2 = VTR2(lower_lim: upper_lim,:);
 VTR3 = VTR3(lower_lim: upper_lim,:); 
 RCDS = RCDS(lower_lim: upper_lim,:);
+RSC1 = RSC1(lower_lim: upper_lim,:);
 
 
 ab_x = RGT(:,1) - RLE(:,1); 
@@ -101,6 +83,7 @@ ab = sqrt(ab_x.^2 + ab_z.^2);
 %This scalar value will be used as a baseline to
 %determine whether or not dynamic gait cycles
 %have too much skin movement in the error_check function.
+
 static_RGT_RLE = mean(ab); 
                       
 de_x = RLO(:,1) - RLS(:,1);
@@ -108,10 +91,10 @@ de_z = RLO(:,3) - RLS(:,3);
 de = sqrt(de_x.^2 + de_z.^2); 
 static_RLO_RLS = mean(de); 
 
-gj_x = RDS(:,1) - Centroid(:,1); 
-gj_z = RDS(:,3) - Centroid(:,3); 
+gj_x = RSC1(:,1) - RAC(:,1); 
+gj_z = RSC1(:,3) - RAC(:,3); 
 gj = sqrt(gj_x.^2 + gj_z.^2); 
-static_RDS_Centroid = mean(gj);                       
+static_RSC1_RAC = mean(gj);                       
                            
 hb_x = RDS(:,1) - RAC(:,1); 
 hb_z = RDS(:,3) - RAC(:,3); 
@@ -124,8 +107,7 @@ am = sqrt(am_x.^2 + am_z.^2);
 static_ACB_R5M = mean(am);
 
 
-
-                                                                                
+                                                                              
 end
 
 

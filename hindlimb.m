@@ -1,6 +1,6 @@
 function [landmark_coord,trimmed_coord,cycle_time,gait_cycles] = hindlimb(dynamic_trial,name,static_trial,error_length,override_arr,show_graphs,gc_override_array,reconstruct_arr,dir_adjust,show_reconst_graphs)
 
-
+tic
 [MP5,MP2,GT,LEP,FH,LMA,CRS,IWG,time,MEP,MMA,QUA,GAS,CAL,ISC,CGT,PTC,side] = create_hindlimb_data(dynamic_trial);
 cycle_time = time * 200;
 
@@ -149,26 +149,26 @@ if(reconstruct_arr(2))
             MEP = vertcat(MEP,zeros(gc(i+1)-gc(i),3));
             continue;
         end
-        
+
         %If marker_good is 0, rm1_x,y,z will be 0
         %marker_count and marker_good should be consistent with one another
         marker_good = check_marker(QUA_x(gc(i):gc(i+1)));
-        rm1_x = (QUA_x(gc(i):gc(i+1)) + -(dir)*abs(sQUA_x - sMEP_x)) * marker_good;
+        rm1_x = (QUA_x(gc(i):gc(i+1)) + -(dir * side)*abs(sQUA_x - sMEP_x)) * marker_good;
         rm1_y = (QUA_y(gc(i):gc(i+1)) + -(dir)*abs(sQUA_y - sMEP_y)) * marker_good;
         rm1_z = (QUA_z(gc(i):gc(i+1)) - abs(sQUA_z - sMEP_z)) * marker_good;
         
         marker_good = check_marker(GT_x(gc(i):gc(i+1)));
-        rm2_x = (GT_x(gc(i):gc(i+1)) + -(dir)*abs(sGT_x - sMEP_x)) * marker_good;
+        rm2_x = (GT_x(gc(i):gc(i+1)) + -(dir * side)*abs(sGT_x - sMEP_x)) * marker_good;
         rm2_y = (GT_y(gc(i):gc(i+1)) + -(dir)*abs(sGT_y - sMEP_y)) * marker_good;
         rm2_z = (GT_z(gc(i):gc(i+1)) - abs(sGT_z - sMEP_z)) * marker_good;
         
         marker_good = check_marker(LEP_x(gc(i):gc(i+1)));
-        rm3_x = (LEP_x(gc(i):gc(i+1)) + -(dir)*abs(sLEP_x - sMEP_x)) * marker_good;
+        rm3_x = (LEP_x(gc(i):gc(i+1)) + -(dir * side)*abs(sLEP_x - sMEP_x)) * marker_good;
         rm3_y = (LEP_y(gc(i):gc(i+1)) + -(dir)*abs(sLEP_y - sMEP_y)) * marker_good;
         rm3_z = (LEP_z(gc(i):gc(i+1)) - abs(sLEP_z - sMEP_z)) * marker_good;
         
         marker_good = check_marker(CGT_x(gc(i):gc(i+1)));
-        rm4_x = (CGT_x(gc(i):gc(i+1)) + -(dir)*abs(sCGT_x - sMEP_x)) * marker_good;
+        rm4_x = (CGT_x(gc(i):gc(i+1)) + -(dir * side)*abs(sCGT_x - sMEP_x)) * marker_good;
         rm4_y = (CGT_y(gc(i):gc(i+1)) + -(dir)*abs(sCGT_y - sMEP_y)) * marker_good;
         rm4_z = (CGT_z(gc(i):gc(i+1)) - abs(sCGT_z - sMEP_z)) * marker_good;
         
@@ -210,12 +210,12 @@ if(reconstruct_arr(6))
         end
 
         marker_good = check_marker(MP5_x(gc(i):gc(i+1)));
-        rm1_x = (MP5_x(gc(i):gc(i+1)) + -(dir)*abs(sMP5_x - sMP2_x)) * marker_good;
+        rm1_x = (MP5_x(gc(i):gc(i+1)) + -(dir * side)*abs(sMP5_x - sMP2_x)) * marker_good;
         rm1_y = (MP5_y(gc(i):gc(i+1)) + -(dir)*abs(sMP5_y - sMP2_y)) * marker_good;
         rm1_z = (MP5_z(gc(i):gc(i+1)) - abs(sMP5_z - sMP2_z)) * marker_good;
         
         marker_good = check_marker(CAL_x(gc(i):gc(i+1)));
-        rm2_x = (CAL_x(gc(i):gc(i+1)) + -(dir)*abs(sCAL_x - sMP2_x)) * marker_good;
+        rm2_x = (CAL_x(gc(i):gc(i+1)) + -(dir * side)*abs(sCAL_x - sMP2_x)) * marker_good;
         rm2_y = (CAL_y(gc(i):gc(i+1)) + -(dir)*abs(sCAL_y - sMP2_y)) * marker_good;
         rm2_z = (CAL_z(gc(i):gc(i+1)) - abs(sCAL_z - sMP2_z)) * marker_good;
         
@@ -233,7 +233,7 @@ if(reconstruct_arr(6))
 end
 
 %MMA
-if(reconstruct_arr(5))  
+if(reconstruct_arr(4))  
     org_MMA = MMA;
     MMA = [];
      
@@ -254,12 +254,12 @@ if(reconstruct_arr(5))
         end
 
         marker_good = check_marker(GAS_x(gc(i):gc(i+1)));
-        rm1_x = (GAS_x(gc(i):gc(i+1)) + -(dir)*abs(sGAS_x - sMMA_x)) * marker_good;
+        rm1_x = (GAS_x(gc(i):gc(i+1)) + -(dir * side)*abs(sGAS_x - sMMA_x)) * marker_good;
         rm1_y = (GAS_y(gc(i):gc(i+1)) + -(dir)*abs(sGAS_y - sMMA_y)) * marker_good;
         rm1_z = (GAS_z(gc(i):gc(i+1)) + abs(sGAS_z - sMMA_z)) * marker_good;
 
         marker_good = check_marker(LMA_x(gc(i):gc(i+1)));
-        rm2_x = (LMA_x(gc(i):gc(i+1)) + -(dir)*abs(sLMA_x - sMMA_x)) * marker_good;
+        rm2_x = (LMA_x(gc(i):gc(i+1)) + -(dir * side)*abs(sLMA_x - sMMA_x)) * marker_good;
         rm2_y = (LMA_y(gc(i):gc(i+1)) + -(dir)*abs(sLMA_y - sMMA_y)) * marker_good;
         rm2_z = (LMA_z(gc(i):gc(i+1)) + abs(sLMA_z - sMMA_z)) * marker_good;
 
@@ -300,12 +300,12 @@ if(reconstruct_arr(1))
         end
                
         marker_good = check_marker(QUA_x(gc(i):gc(i+1)));
-        rm1_x = (QUA_x(gc(i):gc(i+1)) + (dir)*abs(sQUA_x - sLEP_x)) * marker_good;
+        rm1_x = (QUA_x(gc(i):gc(i+1)) + (dir * side)*abs(sQUA_x - sLEP_x)) * marker_good;
         rm1_y = (QUA_y(gc(i):gc(i+1)) + -(dir)*abs(sQUA_y - sLEP_y)) * marker_good;
         rm1_z = (QUA_z(gc(i):gc(i+1)) - abs(sQUA_z - sLEP_z)) * marker_good;
         
         marker_good = check_marker(CGT_x(gc(i):gc(i+1)));
-        rm2_x = (CGT_x(gc(i):gc(i+1)) + (dir)*abs(sCGT_x - sLEP_x)) * marker_good;
+        rm2_x = (CGT_x(gc(i):gc(i+1)) + (dir * side)*abs(sCGT_x - sLEP_x)) * marker_good;
         rm2_y = (CGT_y(gc(i):gc(i+1)) + -(dir)*abs(sCGT_y - sLEP_y)) * marker_good;
         rm2_z = (CGT_z(gc(i):gc(i+1)) - abs(sCGT_z - sLEP_z)) * marker_good;
        
@@ -344,12 +344,12 @@ if(reconstruct_arr(3))
         end
         
         marker_good = check_marker(MP5_x(gc(i):gc(i+1)));
-        rm1_x = (MP5_x(gc(i):gc(i+1)) + -(dir)*abs(sMP5_x - sCAL_x)) * marker_good;
+        rm1_x = (MP5_x(gc(i):gc(i+1)) + -(dir * side)*abs(sMP5_x - sCAL_x)) * marker_good;
         rm1_y = (MP5_y(gc(i):gc(i+1)) + -(dir)*abs(sMP5_y - sCAL_y)) * marker_good;
         rm1_z = (MP5_z(gc(i):gc(i+1)) - abs(sMP5_z - sCAL_z)) * marker_good;
         
         marker_good = check_marker(MP2_x(gc(i):gc(i+1)));
-        rm2_x = (MP2_x(gc(i):gc(i+1)) + -(dir)*abs(sMP2_x - sCAL_x)) * marker_good;
+        rm2_x = (MP2_x(gc(i):gc(i+1)) + -(dir * side)*abs(sMP2_x - sCAL_x)) * marker_good;
         rm2_y = (MP2_y(gc(i):gc(i+1)) + -(dir)*abs(sMP2_y - sCAL_y)) * marker_good;
         rm2_z = (MP2_z(gc(i):gc(i+1)) - abs(sMP2_z - sCAL_z)) * marker_good;
         
@@ -367,7 +367,7 @@ if(reconstruct_arr(3))
 end
 
 %FH
-if(reconstruct_arr(4))
+if(reconstruct_arr(5))
     org_FH = FH;
     FH = [];
     
@@ -387,7 +387,7 @@ if(reconstruct_arr(4))
         end
                 
         marker_good = check_marker(PTC_x(gc(i):gc(i+1)));
-        rm1_x = (PTC_x(gc(i):gc(i+1)) + (dir)*abs(sPTC_x - sFH_x)) * marker_good;
+        rm1_x = (PTC_x(gc(i):gc(i+1)) + (dir * side)*abs(sPTC_x - sFH_x)) * marker_good;
         rm1_y = (PTC_y(gc(i):gc(i+1)) + -(dir)*abs(sPTC_y - sFH_y)) * marker_good;
         rm1_z = (PTC_z(gc(i):gc(i+1)) + abs(sPTC_z - sFH_z)) * marker_good;
            
@@ -660,14 +660,6 @@ if(show_graphs)
 
     new_new_time = 1:length(GT_rle);
     
-    %Plots the position of the right 5th metacarpal in one or more complete
-    %gait cycles
-    figure(16)
-    plot(new_new_time,MP5_z)
-    xlabel('time(s)')
-    ylabel('position(mm)')
-    title('Gait Cycles')
-
     figure(17)
     plot(new_new_time,GT_rle)
     hold on;
@@ -675,7 +667,8 @@ if(show_graphs)
     hold off;
     xlabel('frames')
     ylabel('length(mm)')
-    title('Length of GT/LEP Static and Dynamic Segments vs Time')
+    title('Length of Static and Dynamic Femur Segments vs Time')
+    legend('Dynamic segment','Static segment','Location','Northwest')
 
     fh_rlma = lengthPlotter(static_FH_LMA,FH,LMA);
     figure(18)
@@ -685,7 +678,8 @@ if(show_graphs)
     hold off;
     xlabel('frames')
     ylabel('length(mm)')
-    title('Length of FH/LMA Static and Dynamic Segments vs Time')
+    title('Length of Static and Dynamic Tibular/Fibular Segments vs Time')
+    legend('Dynamic segment','Static segment','Location','Northwest')
 
     rds_cent = lengthPlotter(static_IWG_ISC,IWG,ISC);
     figure(19)
@@ -695,7 +689,8 @@ if(show_graphs)
     hold off;
     xlabel('frames')
     ylabel('length(mm)')
-    title('Length of IWG/Cent Static and Dynamic Segments vs Time')
+    title('Length of Static and Dynamic Pelvis Segments vs Time')
+    legend('Dynamic segment','Static segment','Location','Northwest')
 
     acb_r5m = lengthPlotter(static_CAL_MP5,CAL,MP5);
     figure(21)
@@ -705,20 +700,26 @@ if(show_graphs)
     hold off;
     xlabel('frames')
     ylabel('length(mm)')
-    title('Length of CAL/MP5 Static and Dynamic Segments vs Time')
+    title('Length of Static and Dynamic Tarsus Segments vs Time')
+    legend('Dynamic segment','Static segment','Location','Northwest')
 end
 
-for i = 1:gait_cycle_count
-    disp("GC #" + i)
-    disp(gait_cycles(i).seg_checks)
-end
+% for i = 1:gait_cycle_count
+%     disp("GC #" + i)
+%     disp(gait_cycles(i).seg_checks)
+% end
 
 trial = struct("trial_name",-1,"gait_cycles",-1);
-name
 
 name = extractBetween(name,1,length(name)-4);
 name = char(name);
-trial.side = side;
+
+if(side == -1)
+    trial.side = "left";
+else
+    trial.side = "right";
+end %if 
+
 trial.trial_name = name;
 
 
@@ -773,6 +774,7 @@ trial.pos_data.ISC = ISC;
 trial.gait_cycles = x;
 
 save(['Produced Data/' name '.mat'],'trial')
+toc
 
 end
       

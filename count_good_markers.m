@@ -8,7 +8,7 @@ for i=1:marker_count
     if(check_marker(cell2mat(varargin(i))') == 0)
         good_markers = good_markers - 1;
     end
-end
+end %for
 
 end
 

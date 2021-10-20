@@ -106,7 +106,7 @@ for i = 1:gait_cycle_count
     end 
     
     %shoulder
-    if(trial.gait_cycles(i).RGT_RLE && trial.gait_cycles(i).RDS_Centroid)
+    if(trial.gait_cycles(i).RGT_RLE && trial.gait_cycles(i).RSC1_RAC)
         disp("Creating shoulder data for gc # " + i)
         tBS_f = BS_f(start_frame:end_frame);
         tBS_r = BS_r(start_frame:end_frame);
@@ -139,11 +139,10 @@ j = j(1:9);
 normalized_angles = zeros(9,100);
 
 w = 1;
-
 for i = 1:gait_cycle_count
     for k = 1:9
         tseries = jc_angles.angles(i).(j{k});
-        if tseries(1) ~= -1
+        if(tseries(1) ~= -1 && ~isnan(tseries(1)))
             yy = spline(1:length(tseries),tseries,linspace(1,length(tseries)));
             normalized_angles(w,:) = yy';
             w = w + 1;
