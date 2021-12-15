@@ -1,0 +1,2 @@
+﻿[DawGait ](https://github.com/skang99/Vet-Project)© 2020-2021 by [University of Georgia Research Foundation, Inc. (authors: Grabriella Sandberg, Timothy Foutz, Steve Budsberg, Eliza Banu, Sean Kang, Thomas Pawloski) ](https://www.researchgate.net/profile/Gabriella-Sandberg)is licensed under [Attribution-NonCommercial 4.0 International ](http://creativecommons.org/licenses/by-nc/4.0/?ref=chooser-v1)
+
