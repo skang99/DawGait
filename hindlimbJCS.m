@@ -22,6 +22,7 @@ IWG = trial.pos_data.IWG;
 GAS = trial.pos_data.GAS;
 CAL = trial.pos_data.CAL;
 ISC = trial.pos_data.ISC;
+PTC = trial.pos_data.PTC;
 
 side = 1;
 
@@ -33,7 +34,7 @@ end_frame = length(trial.pos_data.MP5);
 
 new_time = 1:end_frame;
 
-[BA_f BA_r BA_a BS_f BS_r BS_a AP_f AP_r AP_a] = create_hindlimb_angle_data(LEP,MEP,GT,LMA,MMA,FH,MP5,MP2,CAL,ISC,CRS,IWG,side);
+[BA_f BA_r BA_a BS_f BS_r BS_a AP_f AP_r AP_a] = create_hindlimb_angle_data(LEP,MEP,GT,LMA,MMA,FH,MP5,MP2,CAL,ISC,CRS,IWG,PTC,side);
 
 
 %Graphs the velocity of T1 during gc1
@@ -140,6 +141,26 @@ end
 
 jc_angles = struct("trial_name",trial.trial_name,"angles",x,"KNEE_f",nBA_f,"KNEE_r",nBA_r,"KNEE_a",nBA_a,"ANKLE_f",nAP_f,"ANKLE_r",nAP_r,"ANKLE_a",nAP_a,"HIP_f",nBS_f,"HIP_r",nBS_r,"HIP_a",nBS_a);
 
+j = fieldnames(jc_angles.angles)';
+j = j(1:9);
+
+normalized_angles = zeros(9,100);
+
+w = 1;
+for i = 1:gait_cycle_count
+    for k = 1:9
+        tseries = jc_angles.angles(i).(j{k});
+        if(tseries(1) ~= -1 && ~isnan(tseries(1)))
+            yy = spline(1:length(tseries),tseries,linspace(1,length(tseries)));
+            normalized_angles(w,:) = yy';
+            w = w + 1;
+        else
+           normalized_angles(w,:) = (-1 * ones(100,1));
+           w = w + 1;
+        end
+    end
+end
+
 temp_name = char(trial.trial_name + " Angles");
 
 save(['Produced Data/' temp_name '.mat'],'jc_angles')
@@ -168,33 +189,40 @@ writecell(name,filename,'Range','A1')
 writecell(header,filename,'Range','B3');
 writecell(label,filename,'Range','B4');
 
-G1 = table(jc_angles.angles(1).KNEE_f,jc_angles.angles(1).KNEE_r,jc_angles.angles(1).KNEE_a,jc_angles.angles(1).ANKLE_f,jc_angles.angles(1).ANKLE_r,jc_angles.angles(1).ANKLE_a,jc_angles.angles(1).HIP_f,jc_angles.angles(1).HIP_r,jc_angles.angles(1).HIP_a);
+G1 = table(normalized_angles');
 
-if(gait_cycle_count > 1)
-    G2 = table(jc_angles.angles(2).KNEE_f,jc_angles.angles(2).KNEE_r,jc_angles.angles(2).KNEE_a,jc_angles.angles(2).ANKLE_f,jc_angles.angles(2).ANKLE_r,jc_angles.angles(2).ANKLE_a,jc_angles.angles(2).HIP_f,jc_angles.angles(2).HIP_r,jc_angles.angles(2).HIP_a);
-end
+size(normalized_angles)
 
-if(gait_cycle_count > 2)
-   G3 = table(jc_angles.angles(3).KNEE_f,jc_angles.angles(3).KNEE_r,jc_angles.angles(3).KNEE_a,jc_angles.angles(3).ANKLE_f,jc_angles.angles(3).ANKLE_r,jc_angles.angles(3).ANKLE_a,jc_angles.angles(3).HIP_f,jc_angles.angles(3).HIP_r,jc_angles.angles(3).HIP_a);
-end
-
-if(gait_cycle_count > 3)
-   G4 = table(jc_angles.angles(4).KNEE_f,jc_angles.angles(4).KNEE_r,jc_angles.angles(4).KNEE_a,jc_angles.angles(4).ANKLE_f,jc_angles.angles(4).ANKLE_r,jc_angles.angles(4).ANKLE_a,jc_angles.angles(4).HIP_f,jc_angles.angles(4).HIP_r,jc_angles.angles(4).HIP_a);
-end
+normalized_angles'
 
 writetable(G1,filename,'Sheet',1,'Range','B5','WriteVariableNames',false);
 
-if(gait_cycle_count > 1)
-    writetable(G2,filename,'Sheet',1,'Range','K5','WriteVariableNames',false);
-end
 
-if(gait_cycle_count > 2)
-    writetable(G3,filename,'Sheet',1,'Range','T5','WriteVariableNames',false);
-end
-
-if(gait_cycle_count > 3)
-    writetable(G4,filename,'Sheet',1,'Range','T5','WriteVariableNames',false);
-end
+% if(gait_cycle_count > 1)
+%     G2 = table(jc_angles.angles(2).KNEE_f,jc_angles.angles(2).KNEE_r,jc_angles.angles(2).KNEE_a,jc_angles.angles(2).ANKLE_f,jc_angles.angles(2).ANKLE_r,jc_angles.angles(2).ANKLE_a,jc_angles.angles(2).HIP_f,jc_angles.angles(2).HIP_r,jc_angles.angles(2).HIP_a);
+% end
+% 
+% if(gait_cycle_count > 2)
+%    G3 = table(jc_angles.angles(3).KNEE_f,jc_angles.angles(3).KNEE_r,jc_angles.angles(3).KNEE_a,jc_angles.angles(3).ANKLE_f,jc_angles.angles(3).ANKLE_r,jc_angles.angles(3).ANKLE_a,jc_angles.angles(3).HIP_f,jc_angles.angles(3).HIP_r,jc_angles.angles(3).HIP_a);
+% end
+% 
+% if(gait_cycle_count > 3)
+%    G4 = table(jc_angles.angles(4).KNEE_f,jc_angles.angles(4).KNEE_r,jc_angles.angles(4).KNEE_a,jc_angles.angles(4).ANKLE_f,jc_angles.angles(4).ANKLE_r,jc_angles.angles(4).ANKLE_a,jc_angles.angles(4).HIP_f,jc_angles.angles(4).HIP_r,jc_angles.angles(4).HIP_a);
+% end
+% 
+% writetable(G1,filename,'Sheet',1,'Range','B5','WriteVariableNames',false);
+% 
+% if(gait_cycle_count > 1)
+%     writetable(G2,filename,'Sheet',1,'Range','K5','WriteVariableNames',false);
+% end
+% 
+% if(gait_cycle_count > 2)
+%     writetable(G3,filename,'Sheet',1,'Range','T5','WriteVariableNames',false);
+% end
+% 
+% if(gait_cycle_count > 3)
+%     writetable(G4,filename,'Sheet',1,'Range','T5','WriteVariableNames',false);
+% end
 
 
 

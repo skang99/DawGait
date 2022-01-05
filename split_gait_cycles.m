@@ -10,7 +10,7 @@ function [cycle_frame, gait_cycle_count] = split_gait_cycles(marker_pos)
 % all gait cycles and the start of gait cycle 1
 
 % Note that marker_pos should be z data. Trials with poorly recorded z data
-% for the 5th metacarpal (our standard landmark for a trial's recording quality) will produce 
+% for the 5th metacarpal (our standard landmark to judge a trial's recording quality) will produce 
 % incorrect results and should be discarded: blank data or spotty data,
 % particularly near frames approaching bowls, will make this approach unreliable
 

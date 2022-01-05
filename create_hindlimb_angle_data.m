@@ -1,4 +1,4 @@
-function [BA_f BA_r BA_a BS_f BS_r BS_a AP_f AP_r AP_a] = create_hindlimb_angle_data(RLEP,RMEP,RGT,RLMA,RMMA,RFH,RMP5,R2M,RCAL,RISC,CRS,RIWG,side)
+function [BA_f BA_r BA_a BS_f BS_r BS_a AP_f AP_r AP_a] = create_hindlimb_angle_data(RLEP,RMEP,RGT,RLMA,RMMA,RFH,RMP5,R2M,RCAL,RISC,CRS,RIWG,PTC,side)
 
 [RLEP_x RLEP_y RLEP_z] = extract_XYZ(RLEP);
 [RMEP_x RMEP_y RMEP_z] = extract_XYZ(RMEP);
@@ -12,6 +12,7 @@ function [BA_f BA_r BA_a BS_f BS_r BS_a AP_f AP_r AP_a] = create_hindlimb_angle_
 [RISC_x RISC_y RISC_z] = extract_XYZ(RISC);
 [CRS_x CRS_y CRS_z] = extract_XYZ(CRS);
 [RIWG_x RIWG_y RIWG_z] = extract_XYZ(RIWG);
+[PTC_x, PTC_y, PTC_z] = extract_XYZ(PTC);
 
 
 for b = 1:size(RGT_x,2)   
@@ -56,9 +57,14 @@ for b = 1:size(RGT_x,2)
     
     %x-axis
     
-    RFH_RLMA = [(RFH_x(:,b) - RLMA_x(:,b)) (RFH_y(:,b) - RLMA_y(:,b)) (RFH_z(:,b) - RLMA_z(:,b))];
+    RFH_RLMA = [(PTC_x(:,b) - RFH_x(:,b)) (PTC_y(:,b) - RFH_y(:,b)) (PTC_z(:,b) - RFH_z(:,b))];
     
     x_dist_num = cross(RFH_RLMA,z_dist);
+
+    %     RFH_RLMA = [(RFH_x(:,b) - RLMA_x(:,b)) (RFH_y(:,b) - RLMA_y(:,b)) (RFH_z(:,b) - RLMA_z(:,b))];
+%     
+%     x_dist_num = cross(RFH_RLMA,z_dist);
+
     
     x_dist_denom = sqrt(x_dist_num(:,1).^2 + x_dist_num(:,2).^2 + x_dist_num(:,3).^2);
     
@@ -72,7 +78,7 @@ for b = 1:size(RGT_x,2)
     
     FA = cross(y_dist,z_prox); %Calculates the floating axis
     
-    alpha(:,b) = asind(dot(FA,y_prox,2)); %Holds the flexion 
+    alpha(:,b) = 180 - acosd(dot(FA,y_prox,2)); %Holds the flexion 
     gamma(:,b) = asind(dot(FA,z_dist,2)); %Holds internal/external rotation
     beta(:,b) = acosd(dot(z_prox,y_dist,2)); %Holds abduction angle
      
@@ -125,7 +131,7 @@ end
     
     %Range of Motion of Joint
     
-    alpha_2(:,b) = asind(dot(FA_2,y_prox_2,2)); %Holds the flexion 
+    alpha_2(:,b) = 180 - asind(dot(FA_2,y_prox_2,2)); %Holds the flexion 
     gamma_2(:,b) = asind(dot(FA_2,z_dist_2,2)); %Holds internal/external rotation
     beta_2(:,b) = acosd(dot(z_prox_2,y_dist_2,2)); %Holds abduction angle
     
@@ -179,14 +185,13 @@ CRS_RISC = [(CRS_x(:,b) - RISC_x(:,b)) (CRS_y(:,b) - RISC_y(:,b)) (CRS_z(:,b) - 
     
     FA_3 = cross(y_dist_3,z_prox_3);
     
-    %Range of Motion of joint
+    %Range of Motion of joint (HIP)
       
-    alpha_3(:,b) = asind(dot(FA_3,y_prox_3,2)); %Holds the flexion 
+    alpha_3(:,b) = 180 - asind(dot(FA_3,y_prox_3,2)); %Holds the flexion 
     gamma_3(:,b) = asind(dot(FA_3,z_dist_3,2)); %Holds internal/external rotation
     beta_3(:,b) = acosd(dot(z_prox_3,y_dist_3,2)); %Holds abduction angle
     
-    
-
+   
 g2 = 1; 
 
 BA_f = alpha(:,g2);

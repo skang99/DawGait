@@ -1,4 +1,4 @@
-function [R5M,R2M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC,DLMC5,VTR1,VTR2,VTR3,RSC1,RCDS] = create_frontlimb_data(filename)
+function [R5M,R2M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC,DLMC5,VTR1,VTR2,VTR3,RSC1,RSC2,RCDS] = create_frontlimb_data(filename)
 % Extracts positional data from the xls file filename
 % Assumes xls files passed in are all similiarly formatted, namely,
 % that the row data begins in is row 6
@@ -38,7 +38,6 @@ RSC2 = double(subs(extract_data(position_data,markers,'SC2'),NaN,0));
 RMS = double(subs(extract_data(position_data,markers,'MSTY'),NaN,0));
 ACB = double(subs(extract_data(position_data,markers,'ACCB'),NaN,0));
 
-RAC = double(subs(extract_data(position_data,markers,'ACRM'),NaN,0));
 DLMC5 = double(subs(extract_data(position_data,markers,'DLMC5'),NaN,0));
 
 VTR1 = double(subs(extract_data(position_data,markers,'VTR1'),NaN,0));

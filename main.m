@@ -2,9 +2,9 @@ function [landmark_coord,trimmed_coord,cycle_time,gait_cycles] = main(dynamic_tr
 
 tic
 %Frontlimb trial function
-[R5M,R2M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC,DLMC5,VTR1,VTR2,VTR3,RSC1,RCDS] = create_frontlimb_data(dynamic_trial);
+[R5M,R2M,RGT,RLE,RLO,RLS,T1,RDS,Centroid,time,RME,RMS,RTR,RCR,ACB,RAC,DLMC5,VTR1,VTR2,VTR3,SC1,SC2,RCDS] = create_frontlimb_data(dynamic_trial);
 
-cycle_time = time * 200;
+cycle_time = time * 100;
 
 R_5th_M_z = R5M(:,3);
 
@@ -36,7 +36,8 @@ VTR1 = VTR1(cyc_start:cyc_end,:);
 VTR2 = VTR2(cyc_start:cyc_end,:);
 VTR3 = VTR3(cyc_start:cyc_end,:);
 RCDS = RCDS(cyc_start:cyc_end,:);
-RSC1 = RSC1(cyc_start:cyc_end,:);
+SC1 = SC1(cyc_start:cyc_end,:);
+SC2 = SC2(cyc_start:cyc_end,:);
 
 [gait_cycle_frame_locations, gait_cycle_count] = split_gait_cycles(R_5th_M_z);
 gc = gait_cycle_frame_locations;
@@ -47,7 +48,7 @@ if(gait_cycle_count == 0)
 end
 
 try
-    [static_RGT_RLE,static_RLO_RLS,static_RSC1_RAC,static_RDS_RAC,static_ACB_R5M,sT1,sVTR1,sSC1,sDLMC5,sACB,sRDS,sRTR,sRME,sRCR,sR5M,sR2M,sRMS,sRGT,sRLE,sCentroid,sRLS,sRLO,sVTR2,sVTR3,sRCDS] = create_static_data(static_trial);
+    [static_RGT_RLE,static_RLO_RLS,static_RSC1_RAC,static_RDS_RAC,static_ACB_R5M,sT1,sVTR1,sSC1,sDLMC5,sACB,sRDS,sRTR,sRME,sRCR,sR5M,sR2M,sRMS,sRGT,sRLE,sCentroid,sRLS,sRLO,sVTR2,sVTR3,sRCDS,sSC2,sRAC] = create_static_data(static_trial);
 catch exception  
     disp(getReport(exception))
 end
@@ -72,7 +73,8 @@ VTR1 = VTR1(gc(1):gc(length(gc)),:);
 VTR2 = VTR2(gc(1):gc(length(gc)),:);
 VTR3 = VTR3(gc(1):gc(length(gc)),:);
 RCDS = RCDS(gc(1):gc(length(gc)),:);
-RSC1 = RSC1(gc(1):gc(length(gc)),:);
+SC1 = SC1(gc(1):gc(length(gc)),:);
+SC2 = SC2(gc(1):gc(length(gc)),:);
 
 new_new_time = time(1:length(R5M(:,3)));
 
@@ -100,6 +102,9 @@ end
 
 [VTR3_x, VTR3_y, VTR3_z] = extract_XYZ(VTR3);
 [RCDS_x, RCDS_y, RCDS_z] = extract_XYZ(RCDS);
+
+%holds gc start frames relative to the imported spreadsheet
+o_frames = gc;
 
 %Readjusts GC locations to begin at frame #1 and end at cyc_end
 if(gc(1) ~= 1)  
@@ -135,6 +140,9 @@ if(dir_adjust)
         RCR(:,2) = RCR(:,2) * -1;
         ACB(:,2) = ACB(:,2) * -1;
         RAC(:,2) = RAC(:,2) * -1;
+        SC1(:,2) = SC1(:,2) * -1;
+        SC2(:,2) = SC2(:,2) * -1;
+        RCDS(:,2) = RCDS(:,2) * -1;
         DLMC5(:,2) = DLMC5(:,2) * -1;
     end
 end
@@ -202,34 +210,46 @@ if(reconstruct_arr(3))
     org_RDS = RDS;
     RDS = [];
     
-    [sCentroid_x, sCentroid_y, sCentroid_z] = extract_XYZ(sCentroid);
-    sCentroid_x = mean(sCentroid_x); sCentroid_y = mean(sCentroid_y); sCentroid_z = mean(sCentroid_z); 
+    [SC1_x, SC1_y, SC1_z] = extract_XYZ(SC1);
+    [SC2_x, SC2_y, SC2_z] = extract_XYZ(SC2);
+    [RAC_x, RAC_y, RAC_z] = extract_XYZ(RAC);
+     
+    [sSC1_x, sSC1_y, sSC1_z] = extract_XYZ(sSC1);
+    sSC1_x = mean(sSC1_x); sSC1_y = mean(sSC1_y); sSC1_z = mean(sSC1_z); 
     
-    [sRCDS_x, sRCDS_y, sRCDS_z] = extract_XYZ(sRCDS);
-    sRCDS_x = mean(sRCDS_x); sRCDS_y = mean(sRCDS_y); sRCDS_z = mean(sRCDS_z); 
-
+    [sSC2_x, sSC2_y, sSC2_z] = extract_XYZ(sSC2);
+    sSC2_x = mean(sSC2_x); sSC2_y = mean(sSC2_y); sSC2_z = mean(sSC2_z); 
+    
+    [sRAC_x, sRAC_y, sRAC_z] = extract_XYZ(sRAC);
+    sRAC_x = mean(sRAC_x); sRAC_y = mean(sRAC_y); sRAC_z = mean(sRAC_z); 
+    
     [sRDS_x, sRDS_y, sRDS_z] = extract_XYZ(sRDS);
     sRDS_x = mean(sRDS_x); sRDS_y = mean(sRDS_y); sRDS_z = mean(sRDS_z); 
     
     for i = 1:gait_cycle_count      
-        marker_count = count_good_markers(Centroid(gc(i):gc(i+1)),RCDS(gc(i):gc(i+1)));
+        marker_count = count_good_markers(SC1(gc(i):gc(i+1)),SC2(gc(i):gc(i+1)),RAC(gc(i):gc(i+1)));
         
         if(marker_count == 0)
             RDS = vertcat(RDS,zeros(gc(i+1)-gc(i),3));
             continue;
         end
         
-        marker_good = check_marker(Centroid_x(gc(i):gc(i+1)));
-        rm1_x = (Centroid_x(gc(i):gc(i+1))+ -(dir)*abs(sCentroid_x - sRDS_x)) * marker_good;
-        rm1_y = (Centroid_y(gc(i):gc(i+1)) + -(dir)*abs(sCentroid_y - sRDS_y)) * marker_good;
-        rm1_z = (Centroid_z(gc(i):gc(i+1)) - abs(sCentroid_z - sRDS_z)) * marker_good;
+        marker_good = check_marker(SC1_x(gc(i):gc(i+1)));
+        rm1_x = (SC1_x(gc(i):gc(i+1))+ -(dir)*abs(sSC1_x - sRDS_x)) * marker_good;
+        rm1_y = (SC1_y(gc(i):gc(i+1)) + -(dir)*abs(sSC1_y - sRDS_y)) * marker_good;
+        rm1_z = (SC1_z(gc(i):gc(i+1)) - abs(sSC1_z - sRDS_z)) * marker_good;
         
-        marker_good = check_marker(RCDS_x(gc(i):gc(i+1)));
-        rm2_x = (RCDS_x(gc(i):gc(i+1)) + -(dir)*abs(sRCDS_x - sRDS_x)) * marker_good;
-        rm2_y = (RCDS_y(gc(i):gc(i+1)) + -(dir)*abs(sRCDS_y - sRDS_y)) * marker_good;
-        rm2_z = (RCDS_z(gc(i):gc(i+1)) + abs(sRCDS_z - sRDS_z)) * marker_good;
+        marker_good = check_marker(SC2_x(gc(i):gc(i+1)));
+        rm2_x = (SC2_x(gc(i):gc(i+1))+ -(dir)*abs(sSC2_x - sRDS_x)) * marker_good;
+        rm2_y = (SC2_y(gc(i):gc(i+1)) + -(dir)*abs(sSC2_y - sRDS_y)) * marker_good;
+        rm2_z = (SC2_z(gc(i):gc(i+1)) - abs(sSC2_z - sRDS_z)) * marker_good;
         
-        rRDS = [((rm1_x + rm2_x) / marker_count) ((rm1_y + rm2_y) / marker_count) ((rm1_z + rm2_z) / marker_count)];
+        marker_good = check_marker(RAC_x(gc(i):gc(i+1)));
+        rm3_x = (RAC_x(gc(i):gc(i+1))+ -(dir)*abs(sRAC_x - sRDS_x)) * marker_good;
+        rm3_y = (RAC_y(gc(i):gc(i+1)) + -(dir)*abs(sRAC_y - sRDS_y)) * marker_good;
+        rm3_z = (RAC_z(gc(i):gc(i+1)) - abs(sRAC_z - sRDS_z)) * marker_good;       
+        
+        rRDS = [((rm1_x + rm2_x + rm3_x) / marker_count) ((rm1_y + rm2_y + rm3_y) / marker_count) ((rm1_z + rm2_z + rm3_z) / marker_count)];
         
         RDS = vertcat(RDS,rRDS);
     end
@@ -238,6 +258,62 @@ if(reconstruct_arr(3))
         RDS = vertcat(RDS,zeros(length(R5M)-length(RDS),3));
     else
         RDS = RDS(1:length(R5M),:);
+    end
+end
+
+%RCDS
+if(reconstruct_arr(1))
+    org_RCDS = RCDS;
+    RCDS = [];
+    
+    [SC1_x, SC1_y, SC1_z] = extract_XYZ(SC1);
+    [SC2_x, SC2_y, SC2_z] = extract_XYZ(SC2);
+    [RAC_x, RAC_y, RAC_z] = extract_XYZ(RAC);
+    
+    [sSC1_x, sSC1_y, sSC1_z] = extract_XYZ(sSC1);
+    sSC1_x = mean(sSC1_x); sSC1_y = mean(sSC1_y); sSC1_z = mean(sSC1_z);
+    
+    [sSC2_x, sSC2_y, sSC2_z] = extract_XYZ(sSC2);
+    sSC2_x = mean(sSC2_x); sSC2_y = mean(sSC2_y); sSC2_z = mean(sSC2_z);
+    
+    [sRAC_x, sRAC_y, sRAC_z] = extract_XYZ(sRAC);
+    sRAC_x = mean(sRAC_x); sRAC_y = mean(sRAC_y); sRAC_z = mean(sRAC_z);
+    
+    [sRCDS_x, sRCDS_y, sRCDS_z] = extract_XYZ(sRCDS);
+    sRCDS_x = mean(sRCDS_x); sRCDS_y = mean(sRCDS_y); sRCDS_z = mean(sRCDS_z);
+    
+    for i = 1:gait_cycle_count
+        marker_count = count_good_markers(SC1(gc(i):gc(i+1)),SC2(gc(i):gc(i+1)),RAC(gc(i):gc(i+1)));
+        
+        if(marker_count == 0)
+            RCDS = vertcat(RCDS,zeros(gc(i+1)-gc(i),3));
+            continue;
+        end
+        
+        marker_good = check_marker(SC1_x(gc(i):gc(i+1)));
+        rm1_x = (SC1_x(gc(i):gc(i+1))+ -(dir)*abs(sSC1_x - sRCDS_x)) * marker_good;
+        rm1_y = (SC1_y(gc(i):gc(i+1)) + -(dir)*abs(sSC1_y - sRCDS_y)) * marker_good;
+        rm1_z = (SC1_z(gc(i):gc(i+1)) - abs(sSC1_z - sRCDS_z)) * marker_good;
+        
+        marker_good = check_marker(SC2_x(gc(i):gc(i+1)));
+        rm2_x = (SC2_x(gc(i):gc(i+1))+ -(dir)*abs(sSC2_x - sRCDS_x)) * marker_good;
+        rm2_y = (SC2_y(gc(i):gc(i+1)) + -(dir)*abs(sSC2_y - sRCDS_y)) * marker_good;
+        rm2_z = (SC2_z(gc(i):gc(i+1)) - abs(sSC2_z - sRCDS_z)) * marker_good;
+        
+        marker_good = check_marker(RAC_x(gc(i):gc(i+1)));
+        rm3_x = (RAC_x(gc(i):gc(i+1))+ -(dir)*abs(sRAC_x - sRCDS_x)) * marker_good;
+        rm3_y = (RAC_y(gc(i):gc(i+1)) + -(dir)*abs(sRAC_y - sRCDS_y)) * marker_good;
+        rm3_z = (RAC_z(gc(i):gc(i+1)) - abs(sRAC_z - sRCDS_z)) * marker_good;
+        
+        rRCDS = [((rm1_x + rm2_x + rm3_x) / marker_count) ((rm1_y + rm2_y + rm3_y) / marker_count) ((rm1_z + rm2_z + rm3_z) / marker_count)];
+        
+        RCDS = vertcat(RCDS,rRCDS);
+    end
+    
+    if(length(R5M) > length(RCDS))
+        RCDS = vertcat(RCDS,zeros(length(R5M)-length(RCDS),3));
+    else
+        RCDS = RCDS(1:length(R5M),:);
     end
 end
 
@@ -398,6 +474,7 @@ if(reconstruct_arr(4))
 end
 
 if(show_reconst_graphs)   
+    
     %RME
     if(reconstruct_arr(2))
         figure(1)
@@ -445,35 +522,41 @@ if(show_reconst_graphs)
         figure(19)
         plot(new_new_time,org_RDS(:,1))
         hold on;
-        plot(new_new_time,Centroid(:,1))
+        plot(new_new_time,SC1(:,1))
+        plot(new_new_time,SC2(:,1))
+        plot(new_new_time,RAC(:,1))
         plot(new_new_time,RDS(:,1))
         hold off;
         xlabel('time(s)')
         ylabel('pos (mm)')
         title('x values of reconstructed RDS data')
-        legend('original RDS','Centroid''Reconstructed','Location','Northeast')
+        legend('original RDS','SC1','SC2','RAC','Reconstructed','Location','Northeast')
 
         figure(20)
         plot(new_new_time,org_RDS(:,2))
         hold on;
-        plot(new_new_time,Centroid(:,2))
+        plot(new_new_time,SC1(:,2))
+        plot(new_new_time,SC2(:,2))
+        plot(new_new_time,RAC(:,2))
         plot(new_new_time,RDS(:,2))
         hold off;
         xlabel('time(s)')
         ylabel('pos (mm)')
         title('y values of reconstructed RDS data')
-        legend('original RDS','Centroid','Reconstructed','Location','Northeast')
+        legend('original RDS','SC1','SC2','RAC','Reconstructed','Location','Northeast')
 
         figure(21)
         plot(new_new_time,org_RDS(:,3))
         hold on;
-        plot(new_new_time,Centroid(:,3))
+        plot(new_new_time,SC1(:,3))
+        plot(new_new_time,SC2(:,3))
+        plot(new_new_time,RAC(:,3))
         plot(new_new_time,RDS(:,3))
         hold off;
         xlabel('time(s)')
         ylabel('pos (mm)')
         title('z values of reconstructed RDS data')
-        legend('original RDS','Centroid','Reconstructed','Location','Northeast')
+        legend('original RDS','SC1','SC2','RAC','Reconstructed','Location','Northeast')
     end
     
     %RMS
@@ -518,8 +601,49 @@ if(show_reconst_graphs)
         legend('original RMS','RLS','RLO','RCR','Reconstructed','Location','Northeast')
     end
     
-   
+    %RCDS
+    if(reconstruct_arr(1))
+        figure(25)
+        plot(new_new_time,org_RCDS(:,1))
+        hold on;
+        plot(new_new_time,SC1(:,1))
+        plot(new_new_time,SC2(:,1))
+        plot(new_new_time,RAC(:,1))
+        plot(new_new_time,RCDS(:,1))
+        hold off;
+        xlabel('time(s)')
+        ylabel('pos (mm)')
+        title('x values of reconstructed RCDS data')
+        legend('original RCDS','SC1','SC2','RAC','Reconstructed','Location','Northeast')
+
+        figure(26)
+        plot(new_new_time,org_RCDS(:,2))
+        hold on;
+        plot(new_new_time,SC1(:,2))
+        plot(new_new_time,SC2(:,2))
+        plot(new_new_time,RAC(:,2))
+        plot(new_new_time,RCDS(:,2))
+        hold off;
+        xlabel('time(s)')
+        ylabel('pos (mm)')
+        title('y values of reconstructed RCDS data')
+        legend('original RCDS','SC1','SC2','RAC','Reconstructed','Location','Northeast')
+
+        figure(27)
+        plot(new_new_time,org_RCDS(:,3))
+        hold on;
+        plot(new_new_time,SC1(:,3))
+        plot(new_new_time,SC2(:,3))
+        plot(new_new_time,RAC(:,3))
+        plot(new_new_time,RCDS(:,3))
+        hold off;
+        xlabel('time(s)')
+        ylabel('pos (mm)')
+        title('z values of reconstructed RCDS data')
+        legend('original RCDS','SC1','SC2','RAC','Reconstructed','Location','Northeast')
+    end
     
+    %ACB
     if(reconstruct_arr(5))
         figure(4)
         plot(new_new_time,org_ACB(:,1))
@@ -563,7 +687,7 @@ if(show_reconst_graphs)
     
     %MP2
     if(reconstruct_arr(6))
-        figure(22)
+        figure(32)
         plot(new_new_time,org_R2M(:,1))
         hold on;
         plot(new_new_time,ACB(:,1))
@@ -576,7 +700,7 @@ if(show_reconst_graphs)
         title('x values of reconstructed R2M data')
         legend('original R2M','ACB','R5M','DLMC5','Reconstructed','Location','Northeast')
 
-        figure(23)
+        figure(33)
         plot(new_new_time,org_R2M(:,2))
         hold on;
         plot(new_new_time,ACB(:,2))
@@ -589,7 +713,7 @@ if(show_reconst_graphs)
         title('y values of reconstructed R2M data')
         legend('original R2M','ACB','R5M','DLMC5','Reconstructed','Location','Northeast')
 
-        figure(24)
+        figure(34)
         plot(new_new_time,org_R2M(:,3))
         hold on;
         plot(new_new_time,ACB(:,3))
@@ -602,14 +726,14 @@ if(show_reconst_graphs)
         title('z values of reconstructed R2M data')
         legend('original R2M','ACB','R5M','DLMC5','Reconstructed','Location','Northeast')
     end
- 
+    
 end
 
 oc = 1;
 
 %Error checking
 for n = 1:gait_cycle_count
-   
+    
     start_frame = gc(n);
     end_frame = gc(n+1);
     segment_error_checks = struct("RGT_RLE",0,"RLO_RLS",0,"RSC1_RAC",0,"ACB_R5M",0);
@@ -626,7 +750,7 @@ for n = 1:gait_cycle_count
         segment_error_checks.RLO_RLS = ~segment_error_checks.RLO_RLS;
     end
     
-    segment_error_checks.RSC1_RAC = error_check(RSC1,RAC,error_length,static_RSC1_RAC,start_frame,end_frame,0);
+    segment_error_checks.RSC1_RAC = error_check(SC1,RAC,error_length,static_RSC1_RAC,start_frame,end_frame,0);
     
     if(override_arr(oc + 2))
         segment_error_checks.RSC1_RAC = ~segment_error_checks.RSC1_RAC;
@@ -641,14 +765,16 @@ for n = 1:gait_cycle_count
     gait_cycles(n) = struct("start_frame",start_frame,"end_frame",end_frame,"seg_checks",segment_error_checks);
     
     oc = oc + 4;
+    
 end
 
-if(show_graphs) 
+if(show_graphs)    
+    s_frame = o_frames(1);
+    e_frame = o_frames(end);
+
     rgt_rle = lengthPlotter(static_RGT_RLE,RGT,RLE);
-    new_new_time = 1:length(rgt_rle);
-    
     figure(8)
-    plot(new_new_time,rgt_rle)
+    plot(s_frame:e_frame,rgt_rle)
     hold on;
     yline(static_RGT_RLE);
     hold off;
@@ -659,7 +785,7 @@ if(show_graphs)
    
     rlo_rls = lengthPlotter(static_RLO_RLS,RLO,RLS);
     figure(9)
-    plot(new_new_time,rlo_rls)
+    plot(s_frame:e_frame,rlo_rls)
     hold on;
     yline(static_RLO_RLS);
     hold off;
@@ -670,7 +796,7 @@ if(show_graphs)
 
     rds_cent = lengthPlotter(static_RSC1_RAC,RDS,Centroid);
     figure(10)
-    plot(new_new_time,rds_cent)
+    plot(s_frame:e_frame,rds_cent)
     hold on;
     yline(static_RSC1_RAC);
     hold off;
@@ -681,7 +807,7 @@ if(show_graphs)
 
     acb_r5m = lengthPlotter(static_ACB_R5M,ACB,R5M);
     figure(12)
-    plot(new_new_time,acb_r5m)
+    plot(s_frame:e_frame,acb_r5m)
     hold on;
     yline(static_ACB_R5M);
     hold off;
@@ -751,9 +877,9 @@ trial.pos_data.RCR = RCR;
 trial.pos_data.ACB = ACB;
 trial.pos_data.RAC = RAC;
 trial.pos_data.DLMC5 = DLMC5;
-trial.pos_data.RSC1 = RSC1;
 trial.pos_data.RCDS = RCDS;
-trial.pos_data.RSC1 = RSC1;
+trial.pos_data.RSC1 = SC1;
+trial.pos_data.RSC2 = SC2;
 trial.pos_data.RAC = RAC;
 
 trial.gait_cycles = x;

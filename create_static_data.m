@@ -1,4 +1,4 @@
-function [static_RGT_RLE,static_RLO_RLS,static_RSC1_RAC,static_RDS_RAC,static_ACB_R5M,T1,VTR1,SC1,DLMC5,ACB,RDS,RTR,RME,RCR,R5M,R2M,RMS,RGT,RLE,Centroid,RLS,RLO,VTR2,VTR3,RCDS] = create_static_data(static_trial)
+function [static_RGT_RLE,static_RLO_RLS,static_RSC1_RAC,static_RDS_RAC,static_ACB_R5M,T1,VTR1,SC1,DLMC5,ACB,RDS,RTR,RME,RCR,R5M,R2M,RMS,RGT,RLE,Centroid,RLS,RLO,VTR2,VTR3,RCDS,SC2,RAC] = create_static_data(static_trial)
 
 % Extracts positional data from the xls file static_trial
 % Assumes xls files passed in are all similiarly formatted, namely,
@@ -40,6 +40,7 @@ VTR3 = double(subs(extract_data(static_pos_data,static_coords,'TV3'),NaN,0));
 RCDS = double(subs(extract_data(static_pos_data,static_coords,'CDSC'),NaN,0));
 
 SC1 = double(subs(extract_data(static_pos_data,static_coords,'SC1'),NaN,0));
+SC2 = double(subs(extract_data(static_pos_data,static_coords,'SC2'),NaN,0));
 DLMC5 = double(subs(extract_data(static_pos_data,static_coords,'DLMC5'),NaN,0));
 ACB = double(subs(extract_data(static_pos_data,static_coords,'ACCB'),NaN,0));
 
@@ -54,6 +55,7 @@ upper_lim =  100;
 T1 = T1(lower_lim: upper_lim,:);
 VTR1 = VTR1(lower_lim: upper_lim,:);
 SC1 = SC1(lower_lim: upper_lim,:);
+SC2 = SC2(lower_lim: upper_lim,:);
 DLMC5 = DLMC5(lower_lim: upper_lim,:);
 ACB = ACB(lower_lim: upper_lim,:);
 RDS = RDS(lower_lim: upper_lim,:);

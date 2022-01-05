@@ -11,7 +11,6 @@ landmark_coord = R_5th_M_z;
 
 R_5th_M_z = R_5th_M_z(cyc_start:cyc_end);
 
-
 MP5 = MP5(cyc_start:cyc_end,:); 
 MP2 = MP2(cyc_start:cyc_end,:);
 GT = GT(cyc_start:cyc_end,:);
@@ -30,6 +29,9 @@ CGT = CGT(cyc_start:cyc_end,:);
 PTC = PTC(cyc_start:cyc_end,:);
 
 [gait_cycle_frame_locations, gait_cycle_count] = split_gait_cycles(R_5th_M_z);
+
+cyc_start
+cyc_end
 
 if(gait_cycle_count == 0)
     disp("No gait cycles found")
@@ -114,8 +116,11 @@ PTC = PTC(gc(1):gc(length(gc)),:);
 
 new_new_time = time(1:length(MP5(:,3)));
 
+%holds gc start frames relative to the imported spreadsheet
+o_frames = gc;
+
 %Readjusts GC locations to begin at frame #1 and end at cyc_end
-if(gc(1) ~= 1)  
+if(gc(1) ~= 1)     
     gc = gc - gc(1);
     gc(1) = 1;
 end
@@ -655,13 +660,16 @@ for n = 1:gait_cycle_count
     oc = oc + 4;
 end
 
-if(show_graphs) 
-    GT_rle = lengthPlotter(static_GT_LEP,GT,LEP);
 
-    new_new_time = 1:length(GT_rle);
+o_frames
+
+if(show_graphs)
+    s_frame = o_frames(1);
+    e_frame = o_frames(end);
     
+    GT_rle = lengthPlotter(static_GT_LEP,GT,LEP);
     figure(17)
-    plot(new_new_time,GT_rle)
+    plot(s_frame:e_frame,GT_rle)
     hold on;
     yline(static_GT_LEP);
     hold off;
@@ -669,10 +677,10 @@ if(show_graphs)
     ylabel('length(mm)')
     title('Length of Static and Dynamic Femur Segments vs Time')
     legend('Dynamic segment','Static segment','Location','Northwest')
-
+    
     fh_rlma = lengthPlotter(static_FH_LMA,FH,LMA);
     figure(18)
-    plot(new_new_time,fh_rlma)
+    plot(s_frame:e_frame,fh_rlma)
     hold on;
     yline(static_FH_LMA);
     hold off;
@@ -680,10 +688,10 @@ if(show_graphs)
     ylabel('length(mm)')
     title('Length of Static and Dynamic Tibular/Fibular Segments vs Time')
     legend('Dynamic segment','Static segment','Location','Northwest')
-
+    
     rds_cent = lengthPlotter(static_IWG_ISC,IWG,ISC);
     figure(19)
-    plot(new_new_time,rds_cent)
+    plot(s_frame:e_frame,rds_cent)
     hold on;
     yline(static_IWG_ISC);
     hold off;
@@ -691,10 +699,10 @@ if(show_graphs)
     ylabel('length(mm)')
     title('Length of Static and Dynamic Pelvis Segments vs Time')
     legend('Dynamic segment','Static segment','Location','Northwest')
-
+    
     acb_r5m = lengthPlotter(static_CAL_MP5,CAL,MP5);
     figure(21)
-    plot(new_new_time,acb_r5m)
+    plot(s_frame:e_frame,acb_r5m)
     hold on;
     yline(static_CAL_MP5);
     hold off;
@@ -770,6 +778,7 @@ trial.pos_data.MMA = MMA;
 trial.pos_data.GAS = GAS;
 trial.pos_data.CAL = CAL;
 trial.pos_data.ISC = ISC;
+trial.pos_data.PTC = PTC;
 
 trial.gait_cycles = x;
 
